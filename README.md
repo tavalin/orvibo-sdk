@@ -6,12 +6,13 @@ A lot of the initial findings regarding the protocol were found https://stikonas
 Basic Example (Assuming you know the MAC of the switch)
 
 ```
+		String mac = "XXXXXXXXXXXX";
 		S20Client client = null;
 		try {
 			client = S20Client.getInstance();
 			client.connect();
 			if (client.isConnected()) {
-				Socket socket = Socket.socketWithDeviceID("XXXXXXXXXXXX", client);
+				Socket socket = Socket.socketWithDeviceID(mac, client);
 				socket.findOnNetwork();
 				socket.on();
 				Thread.sleep(5000);
