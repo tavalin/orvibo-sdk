@@ -6,12 +6,12 @@ A lot of the initial findings regarding the protocol were found https://stikonas
 Basic Example (Assuming you know the MAC of the switch)
 
 ```
-		S20Client networkConnection = null;
+		S20Client client = null;
 		try {
-			networkConnection = S20Client.getInstance();
-			networkConnection.connect();
-			if (networkConnection.isConnected()) {
-				Socket socket = Socket.socketWithDeviceID("XXXXXXXXXXXX", networkConnection);
+			client = S20Client.getInstance();
+			client.connect();
+			if (client.isConnected()) {
+				Socket socket = Socket.socketWithDeviceID("XXXXXXXXXXXX", client);
 				socket.findOnNetwork();
 				socket.on();
 				Thread.sleep(5000);
@@ -20,7 +20,7 @@ Basic Example (Assuming you know the MAC of the switch)
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
-			networkConnection.disconnect();
+			client.disconnect();
 		}
 	
 ```
