@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.log4j.Logger;
+
 import com.github.tavalin.s20.S20Client;
 import com.github.tavalin.s20.entities.Types.DeviceReachability;
 import com.github.tavalin.s20.entities.Types.PowerState;
@@ -32,13 +34,14 @@ public class Socket {
 		DEVICE_ID, POWER, LABEL, TIME, ALARM
 	}
 
-	private InitActions[] initArray = { InitActions.DEVICE_ID, InitActions.POWER };
+	private static final Logger logger = Logger.getLogger(Socket.class);
+	private InitActions[] initArray = { InitActions.DEVICE_ID, InitActions.POWER, InitActions.LABEL };
 	private List<InitActions> initList = new ArrayList<InitActions>(Arrays.asList(initArray));
 	private String deviceID;
 	private String reverseDeviceId;
 	private PowerState powerState;
 	private long mostRecentMessageTimestamp;
-	private DeviceReachability mostRecentReachability;
+	//private DeviceReachability mostRecentReachability;
 	private String label;
 	private ArrayList<SocketStateListener> stateListeners = new ArrayList<SocketStateListener>();
 
@@ -75,8 +78,9 @@ public class Socket {
 	}
 
 	private void updateInitActions(InitActions action) {
+		int numberOfActions = initList.size();
 		initList.remove(action);
-		if (initList.size() == 0) {
+		if (numberOfActions != 0 && initList.size() == 0) {
 			notifyInitComplete();
 		}
 	}
@@ -114,8 +118,7 @@ public class Socket {
 			try {
 				s20Client.sendMessage(message);
 			} catch (SocketException e) {
-				// logger.error("Ooops. Couldn't send message to socket for some
-				// reason :( " + e.getMessage())
+				logger.error("Ooops. Couldn't send message to socket for some reason: " + e.getMessage());
 			}
 		}
 	}
@@ -155,6 +158,7 @@ public class Socket {
 	*/
 
 	private void notifyInitComplete() {
+		logger.debug("Notifying listeners that socket initialisation is complete.");
 		for (SocketStateListener aListener : stateListeners) {
 			aListener.socketDidInitialisation(this);
 		}
@@ -168,8 +172,7 @@ public class Socket {
 		try {
 			s20Client.sendMessage(message);
 		} catch (SocketException e) {
-			// logger.error("Ooops. Couldn't send message to socket for some
-			// reason :( " + e.getMessage())
+			logger.error("Ooops. Couldn't send message to socket for some reason: " + e.getMessage());
 		}
 	}
 
@@ -182,8 +185,7 @@ public class Socket {
 		try {
 			s20Client.sendMessage(message);
 		} catch (SocketException e) {
-			// logger.error("Ooops. Couldn't send message to socket for some
-			// reason :( " + e.getMessage())
+			logger.error("Ooops. Couldn't send message to socket for some reason: " + e.getMessage());
 		}
 	}
 
@@ -195,8 +197,7 @@ public class Socket {
 		try {
 			setPowerState(PowerState.ON);
 		} catch (SocketException e) {
-			// logger.error("Ooops. Couldn't send message to socket for some
-			// reason :( " + e.getMessage())
+			logger.error("Ooops. Couldn't send message to socket for some reason: " + e.getMessage());
 		}
 	}
 
@@ -204,8 +205,7 @@ public class Socket {
 		try {
 			setPowerState(PowerState.OFF);
 		} catch (SocketException e) {
-			// logger.error("Ooops. Couldn't send message to socket for some
-			// reason :( " + e.getMessage())
+			logger.error("Ooops. Couldn't send message to socket for some reason: " + e.getMessage());
 		}
 	}
 
@@ -235,8 +235,7 @@ public class Socket {
 
 			s20Client.sendMessage(message);
 		} catch (SocketException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error("Ooops. Couldn't send message to socket for some reason: " + e.getMessage());
 		}
 
 	}
@@ -250,8 +249,7 @@ public class Socket {
 			message.setMessageType(type);
 			s20Client.sendMessage(message);
 		} catch (SocketException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error("Ooops. Couldn't send message to socket for some reason : " + e.getMessage());
 		}
 	}
 
@@ -259,7 +257,6 @@ public class Socket {
 		Socket socket = new Socket();
 		socket.setDeviceID(deviceID);
 		socket.setNetworkContext(networkContext);
-		networkContext.getAllSocketsCollection().put(deviceID, socket);
 		return socket;
 	}
 
