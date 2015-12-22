@@ -5,7 +5,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.github.tavalin.s20.S20Client;
 import com.github.tavalin.s20.entities.Types.DeviceReachability;
@@ -34,7 +35,7 @@ public class Socket {
 		DEVICE_ID, POWER, LABEL, TIME, ALARM
 	}
 
-	private static final Logger logger = Logger.getLogger(Socket.class);
+	private static final Logger logger = LoggerFactory.getLogger(Socket.class);
 	private InitActions[] initArray = { InitActions.DEVICE_ID, InitActions.POWER, InitActions.LABEL };
 	private List<InitActions> initList = new ArrayList<InitActions>(Arrays.asList(initArray));
 	private String deviceID;

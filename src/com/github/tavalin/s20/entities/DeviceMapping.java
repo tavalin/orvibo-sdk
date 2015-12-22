@@ -2,7 +2,8 @@ package com.github.tavalin.s20.entities;
 
 import java.net.InetSocketAddress;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 // TODO: Auto-generated Javadoc
 /**
@@ -16,7 +17,7 @@ public class DeviceMapping {
 	/** The address. */
 	private InetSocketAddress address;
 	
-	private static final Logger logger = Logger.getLogger(DeviceMapping.class);
+	private static final Logger logger = LoggerFactory.getLogger(DeviceMapping.class);
 	
 	/**
 	 * Gets the device id.

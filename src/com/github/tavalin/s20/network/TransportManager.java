@@ -9,7 +9,8 @@ import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.Enumeration;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.github.tavalin.s20.S20Client;
 import com.github.tavalin.s20.entities.internal.Message;
@@ -21,7 +22,7 @@ import com.github.tavalin.s20.entities.internal.Message;
 public class TransportManager {
 
 	/** The Constant logger. */
-	private static final Logger logger = Logger.getLogger(TransportManager.class);
+	private static final Logger logger = LoggerFactory.getLogger(TransportManager.class);
 	
 	/** The reader. */
 	private SocketReader reader;

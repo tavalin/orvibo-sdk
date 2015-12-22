@@ -6,7 +6,8 @@ import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
 import java.util.Arrays;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.github.tavalin.s20.S20Client;
 import com.github.tavalin.s20.entities.internal.Message;
@@ -20,7 +21,7 @@ import com.github.tavalin.s20.utils.Utils;
 public class SocketReader implements Runnable {
 
 	/** The Constant logger. */
-	private static final Logger logger = Logger.getLogger(SocketReader.class);
+	private static final Logger logger = LoggerFactory.getLogger(SocketReader.class);
 	
 	/** The socket. */
 	private DatagramSocket socket;

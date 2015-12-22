@@ -7,7 +7,8 @@ import java.net.InetSocketAddress;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.github.tavalin.s20.entities.internal.Message;
 import com.github.tavalin.s20.utils.Utils;
@@ -19,7 +20,7 @@ import com.github.tavalin.s20.utils.Utils;
 public class SocketWriter implements Runnable {
 
 	/** The Constant logger. */
-	private static final Logger logger = Logger.getLogger(SocketWriter.class);
+	private static final Logger logger = LoggerFactory.getLogger(SocketWriter.class);
     
     /** The socket. */
     private DatagramSocket socket;

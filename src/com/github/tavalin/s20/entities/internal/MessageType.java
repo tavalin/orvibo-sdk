@@ -1,6 +1,7 @@
 package com.github.tavalin.s20.entities.internal;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 // TODO: Auto-generated Javadoc
 /**
@@ -53,7 +54,7 @@ public enum MessageType {
 							/** The type unknown. */
 							TYPE_UNKNOWN("");
 	
-	private static final Logger logger = Logger.getLogger(MessageType.class);
+	private static final Logger logger = LoggerFactory.getLogger(MessageType.class);
 
 	/** The text. */
 	private String text;

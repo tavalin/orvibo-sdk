@@ -5,9 +5,9 @@ package com.github.tavalin.s20.entities.internal;
 
 import java.net.InetSocketAddress;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import com.github.tavalin.s20.entities.DeviceMapping;
 import com.github.tavalin.s20.entities.Types.PowerState;
 import com.github.tavalin.s20.utils.Utils;
 
@@ -30,7 +30,7 @@ public class Message {
 	private MessageType messageType;
 	
 	/** The Constant logger. */
-	private static final Logger logger = Logger.getLogger(Message.class);
+	private static final Logger logger = LoggerFactory.getLogger(Message.class);
 	
 	/**
 	 * Instantiates a new message.

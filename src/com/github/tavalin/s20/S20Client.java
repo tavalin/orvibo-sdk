@@ -8,7 +8,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.github.tavalin.s20.entities.DeviceMapping;
 import com.github.tavalin.s20.entities.internal.Message;
@@ -61,7 +62,7 @@ public class S20Client {
 	
 	
 	/** The Constant logger. */
-	private static final Logger logger = Logger.getLogger(S20Client.class);
+	private static final Logger logger = LoggerFactory.getLogger(S20Client.class);
 	
 	/**
 	 * Gets the all sockets collection.

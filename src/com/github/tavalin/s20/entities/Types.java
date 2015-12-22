@@ -1,6 +1,7 @@
 package com.github.tavalin.s20.entities;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 // TODO: Auto-generated Javadoc
 /**
@@ -19,7 +20,7 @@ public class Types {
 	 		/** The unreachable. */
 	 		UNREACHABLE;
 	 		
-			private static final Logger logger = Logger.getLogger(DeviceReachability.class);
+ 		private static final Logger logger = LoggerFactory.getLogger(DeviceReachability.class);
 		 }
 
 		 /**
@@ -47,7 +48,7 @@ public class Types {
 					this.text = text;
 				}
  			
- 			private static final Logger logger = Logger.getLogger(PowerState.class);
+ 			private static final Logger logger = LoggerFactory.getLogger(PowerState.class);
 
 				/**
 				 * Gets the text.

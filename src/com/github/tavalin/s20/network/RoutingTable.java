@@ -4,7 +4,8 @@ import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.github.tavalin.s20.entities.DeviceMapping;
 import com.github.tavalin.s20.entities.internal.Message;
@@ -19,7 +20,7 @@ public class RoutingTable {
 	private Map<String,DeviceMapping> mutableDeviceMappingsByDeviceID = new HashMap<String,DeviceMapping>();
 	
 	/** The Constant logger. */
-	private static final Logger logger = Logger.getLogger(RoutingTable.class);
+	private static final Logger logger = LoggerFactory.getLogger(RoutingTable.class);
 
 	 /**
  	 * Gets the device mapping for device id.
