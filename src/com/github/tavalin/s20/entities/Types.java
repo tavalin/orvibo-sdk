@@ -20,7 +20,8 @@ public class Types {
 	 		/** The unreachable. */
 	 		UNREACHABLE;
 	 		
- 		private static final Logger logger = LoggerFactory.getLogger(DeviceReachability.class);
+ 		@SuppressWarnings("unused")
+		private static final Logger logger = LoggerFactory.getLogger(DeviceReachability.class);
 		 }
 
 		 /**
@@ -48,7 +49,8 @@ public class Types {
 					this.text = text;
 				}
  			
- 			private static final Logger logger = LoggerFactory.getLogger(PowerState.class);
+ 			@SuppressWarnings("unused")
+			private static final Logger logger = LoggerFactory.getLogger(PowerState.class);
 
 				/**
 				 * Gets the text.

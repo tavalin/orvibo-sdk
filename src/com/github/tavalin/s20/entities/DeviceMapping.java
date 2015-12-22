@@ -17,6 +17,7 @@ public class DeviceMapping {
 	/** The address. */
 	private InetSocketAddress address;
 	
+	@SuppressWarnings("unused")
 	private static final Logger logger = LoggerFactory.getLogger(DeviceMapping.class);
 	
 	/**
