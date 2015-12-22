@@ -8,21 +8,24 @@ Basic Example (Assuming you know the MAC of the switch)
 ```
 		String mac = "XXXXXXXXXXXX";
 		S20Client client = null;
-		try {
-			client = S20Client.getInstance();
-			client.connect();
-			if (client.isConnected()) {
-				Socket socket = Socket.socketWithDeviceID(mac, client);
-				socket.findOnNetwork();
-				socket.on();
-				Thread.sleep(5000);
-				socket.off();
-				}
-		} catch (Exception e) {
-			e.printStackTrace();
-		} finally {
-			client.disconnect();
-		}
+	        try {
+	            client = S20Client.getInstance();
+	            client.connect();
+	            if (client.isConnected()) {
+	                Socket socket = Socket.socketWithDeviceID(mac, client);
+	                socket.findOnNetwork();
+	                Thread.sleep(1000);
+	                socket.subscribe();
+	                Thread.sleep(1000);
+	                socket.on();
+	                Thread.sleep(5000);
+	                socket.off();
+	                }
+	        } catch (Exception e) {
+	            e.printStackTrace();
+	        } finally {
+	            client.disconnect();
+	        }
 	
 ```
 
