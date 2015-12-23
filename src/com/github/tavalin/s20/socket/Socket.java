@@ -254,12 +254,7 @@ public class Socket {
 		}
 	}
 
-	public static Socket socketWithDeviceID(String deviceID, S20Client networkContext) {
-		Socket socket = new Socket();
-		socket.setDeviceID(deviceID);
-		socket.setNetworkContext(networkContext);
-		return socket;
-	}
+
 
 	public void setDeviceID(String deviceID) {
 		this.deviceID = deviceID;
@@ -271,7 +266,7 @@ public class Socket {
 		return s20Client;
 	}
 
-	private void setNetworkContext(S20Client networkContext) {
+	public void setNetworkContext(S20Client networkContext) {
 		this.s20Client = networkContext;
 	}
 
