@@ -1,4 +1,4 @@
-Java SDK for the Orvibo S20
+###Java SDK for Orvibo S20 [![Build Status](https://travis-ci.org/Tavalin/s20-sdk.svg?branch=master)](https://travis-ci.org/Tavalin/s20-sdk)
 
 This project aims to provide a reusable Java library that implements the Orvibo S20 protocol.
 A lot of the initial findings regarding the protocol were found https://stikonas.eu/wordpress/2015/02/24/reverse-engineering-orvibo-s20-socket/.
