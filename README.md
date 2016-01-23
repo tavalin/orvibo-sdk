@@ -12,7 +12,7 @@ Basic Example (Assuming you know the MAC of the switch)
 	            client = S20Client.getInstance();
 	            client.connect();
 	            if (client.isConnected()) {
-	                Socket socket = client.socketWithDeviceID(mac, client);
+	                Socket socket = client.socketWithDeviceID(mac);
 	                socket.findOnNetwork();
 	                Thread.sleep(1000);
 	                socket.subscribe();
