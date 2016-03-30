@@ -1,7 +1,7 @@
 /*
  * 
  */
-package com.github.tavalin.s20.entities.internal;
+package com.github.tavalin.s20.protocol;
 
 import java.net.InetSocketAddress;
 
@@ -15,7 +15,7 @@ import com.github.tavalin.s20.utils.Utils;
 /**
  * The Class Message.
  */
-public class Message {
+public class MessageOld {
 	
 	/** The device id. */
 	private String deviceId;
@@ -30,14 +30,14 @@ public class Message {
 	private MessageType messageType;
 	
 	/** The Constant logger. */
-	private static final Logger logger = LoggerFactory.getLogger(Message.class);
+	private static final Logger logger = LoggerFactory.getLogger(MessageOld.class);
 	
 	/**
 	 * Instantiates a new message.
 	 *
 	 * @param message the message
 	 */
-	public Message(String message) {
+	public MessageOld(String message) {
 		setMessage(message);
 	}
 
@@ -140,7 +140,7 @@ public class Message {
 	 * @param m the m
 	 * @return the label from message
 	 */
-	public static String getLabelFromMessage(Message m) {
+	public static String getLabelFromMessage(MessageOld m) {
 		if (m.getMessageType() == MessageType.SOCKET_DATA_RESPONSE) {
 			int start = 140;
 			int end = start + 32;
@@ -157,7 +157,7 @@ public class Message {
 	 * @param m the m
 	 * @return the device id from message
 	 */
-	public static String getDeviceIdFromMessage(Message m) {
+	public static String getDeviceIdFromMessage(MessageOld m) {
 		if (m.getMessageType() == MessageType.DISCOVERY_RESPONSE || m.getMessageType() == MessageType.LOCAL_DISCOVERY_RESPONSE) {
 			int start = 14;
 			int end = start + 12;
@@ -177,7 +177,7 @@ public class Message {
 	 * @param m the m
 	 * @return the message type from message
 	 */
-	public static MessageType getMessageTypeFromMessage(Message m) {
+	public static MessageType getMessageTypeFromMessage(MessageOld m) {
 		int start = 4;
 		int end = 4 + 8;
 		String typeString = m.getMessage().substring(start, end);
@@ -190,7 +190,7 @@ public class Message {
 	 * @param message the message
 	 * @return the power state message
 	 */
-	public static PowerState getPowerStateMessage(Message message) {
+	public static PowerState getPowerStateMessage(MessageOld message) {
 		int len = message.getMessage().length();
 		String onOff = message.getMessage().substring(len - 2, len);
 		if (onOff.equals(PowerState.ON.getText())) {

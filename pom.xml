@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>s20-sdk</groupId>
 	<artifactId>s20-sdk</artifactId>
-	<version>0.0.3-SNAPSHOT</version>
+	<version>0.0.4-SNAPSHOT</version>
 	<name>Orvibo S20 SDK</name>
 	<build>
 		<sourceDirectory>src</sourceDirectory>
@@ -15,11 +15,15 @@
 					<source>1.7</source>
 					<target>1.7</target>
 				</configuration>
-			</plugin>
+			</plugin> 
 		</plugins>
 	</build>
+
+ 
+
 	<properties>
 		<slf4jVersion>1.7.2</slf4jVersion>
+		<collection4Version>4.1</collection4Version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -27,5 +31,11 @@
 			<artifactId>slf4j-api</artifactId>
 			<version>${slf4jVersion}</version>
 		</dependency>
+		<dependency>
+	<groupId>org.apache.commons</groupId>
+	<artifactId>commons-collections4</artifactId>
+	<version>${collection4Version}</version>
+</dependency>
+		
 	</dependencies>
 </project>
