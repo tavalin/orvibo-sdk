@@ -8,7 +8,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.github.tavalin.s20.entities.DeviceMapping;
-import com.github.tavalin.s20.entities.internal.Message;
 
 // TODO: Auto-generated Javadoc
 /**
@@ -28,39 +27,27 @@ public class RoutingTable {
  	 * @param deviceID the device id
  	 * @return the device mapping for device id
  	 */
- 	public DeviceMapping getDeviceMappingForDeviceID(String deviceID) {
-	        return getDeviceMappings().get(deviceID);
+ 	public DeviceMapping getDeviceMappingForDevice(String deviceId) {
+	        return getDeviceMappings().get(deviceId);
 	    }
-
-	/**
-	 * Update mappings from message.
-	 *
-	 * @param message the message
-	 */
-	public void updateMappingsFromMessage(Message message) {
-	       if (message.isAResponseMessage() == false) {
-	            return;
-	        }
-	       updateDeviceMappingWithDeviceIDSiteID(message.getDeviceId(),message.getAddress());
-	}
 	
     /**
      * Update device mapping with device id site id.
      *
-     * @param deviceID the device id
+     * @param deviceId the device id
      * @param address the address
      */
-    public void updateDeviceMappingWithDeviceIDSiteID(String deviceID, InetSocketAddress address) {
-        DeviceMapping deviceMapping = getDeviceMappings().get(deviceID);
+    public void updateDeviceMapping(String deviceId, InetSocketAddress address) {
+        DeviceMapping deviceMapping = getDeviceMappings().get(deviceId);
 
         if (deviceMapping == null) {
         	logger.debug("Creating new device mapping.");
             deviceMapping = new DeviceMapping();
-            getDeviceMappings().put(deviceID, deviceMapping);
+            getDeviceMappings().put(deviceId, deviceMapping);
         }
 
         logger.debug("Updating device mapping details");
-        deviceMapping.setDeviceID(deviceID);
+        deviceMapping.setDeviceID(deviceId);
         deviceMapping.setAddress(address);
     }
     

@@ -29,24 +29,22 @@ public class Types {
  		 */
  		public enum PowerState {
  			
-
-			 
  			/** The on. */
- 			ON("01"),
+ 			ON((byte)0x01),
 			 
  			/** The off. */
- 			OFF("00");
+ 			OFF((byte)0x00);
 			 
 			 /** The text. */
- 			private String text;
+ 			private byte state;
 
 			 /**
  			 * Instantiates a new power state.
  			 *
  			 * @param text the text
  			 */
- 			PowerState(String text) {
-					this.text = text;
+ 			PowerState(byte state) {
+					this.state = state;
 				}
  			
  			@SuppressWarnings("unused")
@@ -57,8 +55,8 @@ public class Types {
 				 *
 				 * @return the text
 				 */
-				public String getText() {
-					return this.text;
+				public byte getByte() {
+					return this.state;
 				}
 
 				/**
@@ -67,16 +65,15 @@ public class Types {
 				 * @param text the text
 				 * @return the power state
 				 */
-				public static PowerState fromString(String text) {
-					if (text != null) {
-						for (PowerState p : PowerState.values()) {
-							if (text.equalsIgnoreCase(p.text)) {
-								return p;
-							}
-						}
-					}
-					return null;
-				}
+
+			    public static PowerState getPowerState(byte state) {
+			        for (final PowerState powerState : values()) {
+			            if (powerState.getByte() == state) {
+			                return powerState;
+			            }
+			        }
+			        return null;
+			    }
 		 }
 	 
 }
