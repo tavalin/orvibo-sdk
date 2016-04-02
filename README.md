@@ -1,12 +1,12 @@
-###Java SDK for Orvibo S20 [![Build Status](https://travis-ci.org/Tavalin/s20-sdk.svg?branch=master)](https://travis-ci.org/tavalin/s20-sdk)
+###Java SDK for Orvibo S20 [![Build Status](https://travis-ci.org/tavalin/s20-sdk.svg?branch=master)](https://travis-ci.org/tavalin/s20-sdk)
 
 This project aims to provide a reusable Java library that implements the Orvibo S20 protocol.
-A lot of the initial findings regarding the protocol were found https://stikonas.eu/wordpress/2015/02/24/reverse-engineering-orvibo-s20-socket/.
-
+A lot of the initial findings
 Basic Example (Assuming you know the MAC of the switch)
 
 ```
-		String mac = "XXXXXXXXXXXX";
+		String mac = "XXXXXXXXXXXX"; regarding the protocol were found https://stikonas.eu/wordpress/2015/02/24/reverse-engineering-orvibo-s20-socket/.
+
 		S20Client client = null;
 	        try {
 	            client = S20Client.getInstance();
