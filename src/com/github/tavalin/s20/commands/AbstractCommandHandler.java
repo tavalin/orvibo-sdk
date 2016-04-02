@@ -1,6 +1,7 @@
 package com.github.tavalin.s20.commands;
 
 import java.net.SocketException;
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -10,6 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import com.github.tavalin.s20.S20Client;
 import com.github.tavalin.s20.Socket;
+import com.github.tavalin.s20.entities.Types.PowerState;
 import com.github.tavalin.s20.protocol.Message;
 import com.github.tavalin.s20.utils.Utils;
 
@@ -31,7 +33,7 @@ public abstract class AbstractCommandHandler {
 
     /** The map. */
     private static Map<Command, AbstractCommandHandler> map = new HashMap<Command, AbstractCommandHandler>();
-    
+
     /**
      * Instantiates a new command handler.
      *
@@ -45,9 +47,12 @@ public abstract class AbstractCommandHandler {
         try {
             map.put(Command.GLOBAL_DISCOVERY, new GlobalDiscoveryHandler(S20Client.getInstance()));
             map.put(Command.LOCAL_DISCOVERY, new LocalDiscoveryHandler(S20Client.getInstance()));
-            map.put(Command.POWER, new PowerHandler(S20Client.getInstance()));
+            map.put(Command.POWER_REQUEST, new PowerHandler(S20Client.getInstance()));
+            map.put(Command.POWER_RESPONSE, new PowerHandler(S20Client.getInstance()));
+            map.put(Command.SUBSCRIBE, new SubscribeHandler(S20Client.getInstance()));
         } catch (SocketException e) {
-            LoggerFactory.getLogger(AbstractCommandHandler.class).error("Could not create command map: {}", e.getMessage());
+            LoggerFactory.getLogger(AbstractCommandHandler.class).error("Could not create command map: {}",
+                    e.getMessage());
         }
     }
 
@@ -107,15 +112,24 @@ public abstract class AbstractCommandHandler {
         }
         return deviceId;
     }
+    
+    protected Socket getSocket(Message message) {
+        byte[] payload = message.getCommandPayload();
+        String deviceId = getDeviceId(payload);
+        S20Client client = getClient();
+        Map<String,Socket> sockets = client.getAllSockets();
+        return sockets.get(deviceId);
+    }
 
     /**
      * Creates the message.
      *
      * @param socket the socket
+     * @param state TODO
      * @return the message
      */
     // Abstract methods
-    public abstract Message createMessage(Socket socket);
+    public abstract Message createMessage(Socket socket, PowerState state);
 
     /**
      * Handle incoming.
@@ -130,5 +144,35 @@ public abstract class AbstractCommandHandler {
      * @return the logger
      */
     protected abstract Logger getLogger();
+    
+    protected abstract int getStateByte();
+
+    protected void updatePowerState(Socket socket, Message message) {
+        if (socket != null) {
+            getLogger().debug("Power state received");
+            int pos = getStateByte();
+            byte[] payload = message.getCommandPayload();
+            byte power = payload[pos];
+            switch (power) {
+                case 0:
+                    socket.powerDidChangeTo(PowerState.OFF);
+                    break;
+                case 1:
+                    socket.powerDidChangeTo(PowerState.ON);
+                    break;
+                default:
+                    getLogger().warn("Ignoring unexpected data at power byte '{}'", power);
+            }
+        } else {
+            ByteBuffer buffer = ByteBuffer.allocate(2);
+            buffer.putShort(message.getCommand().getCode());
+            getLogger().debug("Tried to process command '{}' but no socket with deviceId '{}' discovered.",
+                    Message.bb2hex(buffer.array()), message.getDeviceId());
+        }
+
+    }
+
+
+    
 
 }

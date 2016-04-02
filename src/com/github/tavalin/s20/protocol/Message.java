@@ -12,6 +12,7 @@ public class Message {
     private static final Logger logger = LoggerFactory.getLogger(Message.class);
 
     public static final byte PADDING = 0x20;
+    public static final byte ZERO = 0x00;
     public static final short HEADER = 0x6864;
     public static int MAX_LENGTH = 1024;
     public static int MIN_LENGTH = 6;

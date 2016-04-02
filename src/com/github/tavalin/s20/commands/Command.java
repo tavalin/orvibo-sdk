@@ -13,7 +13,11 @@ public enum Command {
     LOCAL_DISCOVERY(0x7167),
     
     /** The power. */
-    POWER(0x7366)
+    POWER_REQUEST(0x6463),
+    
+    POWER_RESPONSE(0x7366),
+    
+    SUBSCRIBE(0x636C)
     ;
 	
 	/** The code. */

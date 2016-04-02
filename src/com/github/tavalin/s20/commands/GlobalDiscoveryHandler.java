@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 
 import com.github.tavalin.s20.S20Client;
 import com.github.tavalin.s20.Socket;
+import com.github.tavalin.s20.entities.Types.PowerState;
 import com.github.tavalin.s20.protocol.Message;
 
 public class GlobalDiscoveryHandler extends AbstractCommandHandler {
@@ -12,13 +13,14 @@ public class GlobalDiscoveryHandler extends AbstractCommandHandler {
     private final Logger logger = LoggerFactory.getLogger(GlobalDiscoveryHandler.class);
     
     private int DEVICE_START = 1;
+    private int POWER_STATE_POS = 35;
     
     public GlobalDiscoveryHandler(S20Client client) {
         super(client);
     }
 
     @Override
-    public Message createMessage(Socket s) {
+    public Message createMessage(Socket s, PowerState state) {
 
         // Construct message object
         Message message = new Message();
@@ -28,12 +30,14 @@ public class GlobalDiscoveryHandler extends AbstractCommandHandler {
     }
 
     @Override
-    public void handleIncoming(Message m) {
-        byte[] payload = m.getCommandPayload();
+    public void handleIncoming(Message message) {
+        byte[] payload = message.getCommandPayload();
         logger.debug("Command payload = {}", Message.bb2hex(payload));
         String deviceId = getDeviceId(payload);
         logger.debug("Creating socket '{}'", deviceId);
-        getClient().socketWithDeviceId(deviceId);
+        S20Client client = getClient();
+        Socket socket = client.socketWithDeviceId(deviceId);
+        updatePowerState(socket, message);
     }
     
     @Override
@@ -43,6 +47,11 @@ public class GlobalDiscoveryHandler extends AbstractCommandHandler {
     
     protected int getDeviceStart(){
         return DEVICE_START;
+    }
+
+    @Override
+    protected int getStateByte() {
+        return POWER_STATE_POS;
     }
 
 }

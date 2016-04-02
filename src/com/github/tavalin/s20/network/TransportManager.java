@@ -66,7 +66,7 @@ public class TransportManager implements PacketListener {
     /** The Constant LISTEN_PORT. */
     public final static int LISTEN_PORT = 10000;
 
-    public final static int STORED_MESSAGES = 50;
+    public final static int STORED_MESSAGES = 1;
 
     /**
      * Instantiates a new transport manager.
@@ -77,12 +77,7 @@ public class TransportManager implements PacketListener {
     public TransportManager(S20Client s20Client) throws SocketException {
         udpSocket = new DatagramSocket(LISTEN_PORT);
         udpSocket.setBroadcast(true);
-        //udpSocket.setReuseAddress(true);
-        udpSocket.setSoTimeout(15000);
-        logger.debug("Socket buffer size = {}",udpSocket.getSendBufferSize());
-        logger.debug("Traffic class = {}", udpSocket.getTrafficClass());
         writer = new DatagramSocketWriter(udpSocket);
-        //writer = new DatagramSocketWriter(new DatagramSocket());
         reader = new DatagramSocketReader(udpSocket);
         reader.addListener(this);
         routingTable = new RoutingTable();
@@ -145,7 +140,6 @@ public class TransportManager implements PacketListener {
     private synchronized InetSocketAddress getBroadcastAddress() throws SocketException {
         if (broadcastAddress == null) {
             broadcastAddress = new InetSocketAddress(getFirstActiveBroadcast(), BROADCAST_PORT);
-            //broadcastAddress = new InetSocketAddress("255.255.255.255", BROADCAST_PORT);
         }
         return broadcastAddress;
     }
@@ -249,8 +243,7 @@ public class TransportManager implements PacketListener {
     @Override
     public synchronized void packetReceived(DatagramPacket packet) {
         InetAddress remoteAddress = packet.getAddress();
-        if (!isLocalAddress(remoteAddress)) {
-            if (!packetAlreadyReceived(packet)) {
+        if (!isLocalAddress(remoteAddress) && !packetAlreadyReceived(packet)) {
                 byte[] bytes = Arrays.copyOf(packet.getData(), packet.getLength());
                 logger.debug("Received Message = {}", Message.bb2hex(bytes));
                 try {
@@ -261,8 +254,6 @@ public class TransportManager implements PacketListener {
                 catch (InvalidMessageException ex) {
                     logger.warn("Message is invalid, ignoring.");
                 }
-                
-            }
         }
     }
 

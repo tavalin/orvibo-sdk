@@ -8,18 +8,15 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.github.tavalin.s20.commands.Command;
 import com.github.tavalin.s20.commands.AbstractCommandHandler;
+import com.github.tavalin.s20.commands.Command;
 import com.github.tavalin.s20.entities.Types.DeviceReachability;
 import com.github.tavalin.s20.entities.Types.PowerState;
 import com.github.tavalin.s20.protocol.Message;
-import com.github.tavalin.s20.protocol.MessageOld;
-import com.github.tavalin.s20.protocol.MessageType;
-import com.github.tavalin.s20.utils.Utils;
 
 public class Socket {
 
-    private static final Logger logger = LoggerFactory.getLogger(Socket.class);
+    private final Logger logger = LoggerFactory.getLogger(Socket.class);
     private InitActions[] initArray = { InitActions.DEVICE_ID, InitActions.POWER, InitActions.LABEL };
     private List<InitActions> initList = new ArrayList<InitActions>(Arrays.asList(initArray));
     private String deviceID;
@@ -104,6 +101,7 @@ public class Socket {
         return DeviceReachability.UNREACHABLE;
     }
 
+    /*
     public void setLabel(String label) {
 
         if (label != null && label.length() <= 16) {
@@ -126,6 +124,7 @@ public class Socket {
             }
         }
     }
+    */
 
     public String getLabel() {
         return label;
@@ -170,12 +169,16 @@ public class Socket {
 
     public void findOnNetwork() {
         AbstractCommandHandler handler = AbstractCommandHandler.getHandler(Command.LOCAL_DISCOVERY);
-        Message m = handler.createMessage(this);
-        s20Client.sendMessage(m);
+        Message message = handler.createMessage(this, null);
+        s20Client.sendMessage(message);
     }
 
     public void subscribe() {
-
+        
+        AbstractCommandHandler handler = AbstractCommandHandler.getHandler(Command.SUBSCRIBE);
+        Message message = handler.createMessage(this, null);
+        s20Client.sendMessage(message);
+/*
         String command = "6864001E636C" + getDeviceId() + "202020202020" + getReverseDeviceId() + "202020202020";
         MessageOld message = new MessageOld(command);
         message.setDeviceId(getDeviceId());
@@ -184,7 +187,7 @@ public class Socket {
             s20Client.sendMessage(message);
         } catch (SocketException e) {
             logger.error("Ooops. Couldn't send message to socket for some reason: " + e.getMessage());
-        }
+        }*/
     }
 
     public String getReverseDeviceId() {
@@ -200,15 +203,13 @@ public class Socket {
     }
 
     private void setPowerState(PowerState powerState) throws SocketException {
-
-        MessageType type = MessageType.POWER_REQUEST;
-        String command = "6864" + type.getText() + getDeviceId() + "20202020202000000000" + powerState.getText();
-        MessageOld message = new MessageOld(command);
-        message.setDeviceId(getDeviceId());
-        message.setMessageType(type);
+      
+        AbstractCommandHandler handler = AbstractCommandHandler.getHandler(Command.POWER_REQUEST);
+        Message message = handler.createMessage(this, powerState);
         s20Client.sendMessage(message);
     }
 
+    /*
     public void getSocketData() {
 
         // String command = "686400176463" + getDeviceID() +
@@ -227,10 +228,12 @@ public class Socket {
         } catch (SocketException e) {
             logger.error("Ooops. Couldn't send message to socket for some reason: " + e.getMessage());
         }
-
     }
-
+    */
+    
+    /*
     public void getTableData() {
+        
         try {
             MessageType type = MessageType.TABLE_DATA_REQUEST;
             String command = "6864" + type.getText() + getDeviceId() + "20202020202000000000" + powerState.getText();
@@ -242,7 +245,7 @@ public class Socket {
             logger.error("Ooops. Couldn't send message to socket for some reason : " + e.getMessage());
         }
     }
-
+     */
     public void setDeviceId(String deviceID) {
         this.deviceID = deviceID;
         setReverseDeviceID(deviceID);
@@ -256,7 +259,7 @@ public class Socket {
     public void setNetworkContext(S20Client networkContext) {
         this.s20Client = networkContext;
     }
-
+/*
     public synchronized void handleMessage(MessageOld message) {
         if (message.isAResponseMessage()) {
             setMostRecentMessageTimestamp(System.currentTimeMillis());
@@ -299,6 +302,7 @@ public class Socket {
                 break;
         }
     }
+    */
 
     private void labelDidChangeTo(String label) {
         if (this.label == null || !getLabel().equals(label)) {

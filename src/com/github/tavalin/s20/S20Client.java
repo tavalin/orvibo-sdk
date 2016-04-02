@@ -16,7 +16,6 @@ import com.github.tavalin.s20.commands.Command;
 import com.github.tavalin.s20.commands.AbstractCommandHandler;
 import com.github.tavalin.s20.network.TransportManager;
 import com.github.tavalin.s20.protocol.Message;
-import com.github.tavalin.s20.protocol.MessageOld;
 
 // TODO: Auto-generated Javadoc
 /**
@@ -124,19 +123,10 @@ public class S20Client {
      */
     public void globalDiscovery() {
         final AbstractCommandHandler handler = AbstractCommandHandler.getHandler(Command.GLOBAL_DISCOVERY);
-        final Message message = handler.createMessage(null);
+        final Message message = handler.createMessage(null, null);
         sendMessage(message);
     }
 
-    /**
-     * Send message.
-     *
-     * @param message the message
-     * @throws SocketException the socket exception
-     */
-    public void sendMessage(MessageOld message) throws SocketException {
-
-    }
 
     /**
      * Send message.
