@@ -81,8 +81,8 @@ public class S20Client {
     public static synchronized S20Client getInstance() throws SocketException {
 
         if (instance == null) {
-            logger.debug("New S20Client instance created.");
             instance = new S20Client();
+            logger.debug("New S20Client instance created.");
         }
         return instance;
 

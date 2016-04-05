@@ -46,13 +46,12 @@ public class DatagramSocketWriter implements Runnable {
     @Override
     public void run() {
         running = true;
-        while (running && !Thread.currentThread().isInterrupted()
-                //&& !queue.isEmpty()
+        while (running && !Thread.currentThread().isInterrupted()//&& !queue.isEmpty()
                 ) {
             try {
                 DatagramPacket packet = queue.take();
                 datagramSocket.send(packet);
-                logger.debug("Sent {} - {}", packet.getSocketAddress(), Message.bb2hex(packet.getData()));
+                logger.debug("--> {} - {}", packet.getSocketAddress(), Message.bb2hex(packet.getData()));
                 Thread.sleep(50); // 20 bursts of packets per second maximum
             } catch (InterruptedException e) {
                 logger.debug("Interrupted.");

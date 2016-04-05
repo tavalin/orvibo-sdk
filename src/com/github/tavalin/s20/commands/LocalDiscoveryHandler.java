@@ -14,7 +14,7 @@ import com.github.tavalin.s20.utils.Utils;
 public class LocalDiscoveryHandler extends AbstractCommandHandler {
 
     private final Logger logger = LoggerFactory.getLogger(LocalDiscoveryHandler.class);
-    private int DEVICE_START = 1;
+    private int DEVICE_START = 0;
     private int POWER_BYTE_POS = 35;
 
     public LocalDiscoveryHandler(S20Client client) {
