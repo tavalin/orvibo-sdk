@@ -244,7 +244,7 @@ public class TransportManager implements PacketListener {
     public synchronized void packetReceived(DatagramPacket packet) {
         InetAddress remoteAddress = packet.getAddress();
         if (!isLocalAddress(remoteAddress) && !packetAlreadyReceived(packet)) {
-                byte[] bytes = Arrays.copyOf(packet.getData(), packet.getLength());
+                byte[] bytes = Arrays.copyOfRange(packet.getData(), packet.getOffset(), packet.getLength());
                 logger.debug("Received Message = {}", Message.bb2hex(bytes));
                 try {
                     Message message = new Message(bytes);

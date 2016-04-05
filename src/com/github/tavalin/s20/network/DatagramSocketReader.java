@@ -8,9 +8,12 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketTimeoutException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.github.tavalin.s20.protocol.Message;
 
 // TODO: Auto-generated Javadoc
 /**
@@ -79,7 +82,8 @@ public class DatagramSocketReader implements Runnable {
             DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
             try {
                 socket.receive(packet);
-                logger.debug("Packet received");
+                byte[] data = Arrays.copyOfRange(packet.getData(), packet.getOffset(), packet.getLength());
+                logger.debug("<-- {} - {}", packet.getAddress(), Message.bb2hex(data));
                 notifyListeners(packet);
             } catch (SocketTimeoutException e) {
                 logger.debug("Socket timed out");
