@@ -130,6 +130,8 @@ public abstract class AbstractCommandHandler {
      */
     // Abstract methods
     public abstract Message createMessage(Socket socket, PowerState state);
+    
+    public abstract boolean isValidResponse(Message message);
 
     /**
      * Handle incoming.

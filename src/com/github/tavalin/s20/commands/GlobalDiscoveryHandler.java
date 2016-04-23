@@ -14,6 +14,7 @@ public class GlobalDiscoveryHandler extends AbstractCommandHandler {
 
     private int DEVICE_START = 1;
     private int POWER_STATE_POS = 35;
+    private int RESPONSE_LENGTH = 42;
 
     public GlobalDiscoveryHandler(S20Client client) {
         super(client);
@@ -31,16 +32,16 @@ public class GlobalDiscoveryHandler extends AbstractCommandHandler {
 
     @Override
     public void handleIncoming(Message message) {
-        byte[] payload = message.getCommandPayload();
-        if (payload.length > 0) {
-        logger.debug("Command payload = {}", Message.bb2hex(payload));
+        if (isValidResponse(message)) {
+            byte[] payload = message.getCommandPayload();
+            logger.debug("Command payload = {}", Message.bb2hex(payload));
             String deviceId = getDeviceId(payload);
             logger.debug("Creating socket '{}'", deviceId);
             S20Client client = getClient();
             Socket socket = client.socketWithDeviceId(deviceId);
             updatePowerState(socket, message);
         } else {
-            logger.warn("Not valid global discovery response.");
+            logger.warn("Not valid response.");
         }
     }
 
@@ -56,6 +57,20 @@ public class GlobalDiscoveryHandler extends AbstractCommandHandler {
     @Override
     protected int getStateByte() {
         return POWER_STATE_POS;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.github.tavalin.s20.commands.AbstractCommandHandler#isValidResponse(com.github.tavalin.s20.protocol.Message)
+     */
+    @Override
+    public boolean isValidResponse(Message message) {
+        boolean isValid = false;
+        byte[] bytes = message.asBytes();
+        isValid = bytes.length == RESPONSE_LENGTH;
+        return isValid;
     }
 
 }

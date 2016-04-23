@@ -22,7 +22,7 @@ import com.github.tavalin.s20.protocol.Message;
  * The Class S20Client.
  */
 
-public class S20Client {
+public class S20Client extends OrviboDevice {
 
     /** The discovery listeners. */
     private final List<SocketDiscoveryListener> discoveryListeners = new ArrayList<SocketDiscoveryListener>();
