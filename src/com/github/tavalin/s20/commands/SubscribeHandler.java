@@ -12,9 +12,10 @@ import com.github.tavalin.s20.protocol.Message;
 import com.github.tavalin.s20.utils.Utils;
 
 public class SubscribeHandler extends AbstractCommandHandler {
-    
+
     private final Logger logger = LoggerFactory.getLogger(SubscribeHandler.class);
     private int POWER_BYTE_POS = 17;
+    private int RESPONSE_LENGTH = 24;
 
     public SubscribeHandler(S20Client client) {
         super(client);
@@ -22,11 +23,10 @@ public class SubscribeHandler extends AbstractCommandHandler {
 
     @Override
     public Message createMessage(Socket s, PowerState state) {
-        //String command = "6864001E636C" + getDeviceId() + "202020202020" + getReverseDeviceId() + "202020202020";
-        
+
         final String deviceId = s.getDeviceId();
         final String reverseId = s.getReverseDeviceId();
-        
+
         final byte[] deviceIdBytes = Utils.hexStringToByteArray(deviceId);
         final byte[] reverseIdBytes = Utils.hexStringToByteArray(reverseId);
         final byte[] paddingBytes = new byte[] { Message.PADDING, Message.PADDING, Message.PADDING, Message.PADDING,
@@ -53,12 +53,14 @@ public class SubscribeHandler extends AbstractCommandHandler {
 
     @Override
     public void handleIncoming(Message message) {
-        logger.debug("Handling incoming message");
-        Socket socket = getSocket(message);
-        updatePowerState(socket, message);
-        
+        if (isValidResponse(message)) {
+            logger.debug("Handling incoming message");
+            Socket socket = getSocket(message);
+            updatePowerState(socket, message);
+        } else {
+            logger.warn("Not valid response.");
+        }
     }
-
 
     @Override
     protected Logger getLogger() {
@@ -68,6 +70,14 @@ public class SubscribeHandler extends AbstractCommandHandler {
     @Override
     protected int getStateByte() {
         return POWER_BYTE_POS;
+    }
+
+    @Override
+    public boolean isValidResponse(Message message) {
+        boolean isValid = false;
+        byte[] bytes = message.asBytes();
+        isValid = bytes.length == RESPONSE_LENGTH;
+        return isValid;
     }
 
 }

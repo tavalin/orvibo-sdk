@@ -14,8 +14,10 @@ import com.github.tavalin.s20.utils.Utils;
 public class LocalDiscoveryHandler extends AbstractCommandHandler {
 
     private final Logger logger = LoggerFactory.getLogger(LocalDiscoveryHandler.class);
+
     private int DEVICE_START = 0;
     private int POWER_BYTE_POS = 35;
+    private int RESPONSE_LENGTH = 42;
 
     public LocalDiscoveryHandler(S20Client client) {
         super(client);
@@ -49,9 +51,13 @@ public class LocalDiscoveryHandler extends AbstractCommandHandler {
 
     @Override
     public void handleIncoming(Message message) {
-        logger.debug("Handling incoming message");
-        Socket socket = getSocket(message);
-        updatePowerState(socket, message);
+        if (isValidResponse(message)) {
+            logger.debug("Handling incoming message");
+            Socket socket = getSocket(message);
+            updatePowerState(socket, message);
+        } else {
+            logger.warn("Not valid response.");
+        }
     }
 
     @Override
@@ -66,5 +72,13 @@ public class LocalDiscoveryHandler extends AbstractCommandHandler {
     @Override
     protected int getStateByte() {
         return POWER_BYTE_POS;
+    }
+
+    @Override
+    public boolean isValidResponse(Message message) {
+        boolean isValid = false;
+        byte[] bytes = message.asBytes();
+        isValid = bytes.length == RESPONSE_LENGTH;
+        return isValid;
     }
 }

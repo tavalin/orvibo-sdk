@@ -260,7 +260,7 @@ public class TransportManager implements PacketListener {
     private void processMessage(InetAddress remoteAddress, Message message) {
         Command command = message.getCommand();
         AbstractCommandHandler handler = AbstractCommandHandler.getHandler(command);
-        if (handler != null) {
+        if (handler != null && handler.isValidResponse(message)) {
             String deviceId = handler.getDeviceId(message.getCommandPayload());
             routingTable.updateDeviceMapping(deviceId, new InetSocketAddress(remoteAddress, REMOTE_PORT));
             message.setDeviceId(deviceId);
