@@ -1,4 +1,4 @@
-package com.github.tavalin.orvibo.test;
+package com.github.tavalin.orvibo.commands;
 
 import com.github.tavalin.orvibo.protocol.Message;
 

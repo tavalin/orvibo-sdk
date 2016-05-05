@@ -11,14 +11,15 @@ import com.github.tavalin.orvibo.protocol.Message;
 
 public class AllOne extends OrviboDevice {
     
-    private String filename = null;
+    private String learnFilename = null;
+    private String emitFilename = null;
 	
 	public AllOne() {
         super(DeviceType.ALLONE);
     }
 
-    public void emit(String emitFile) throws IOException {
-		Message message = CommandFactory.createEmitCommand(this, emitFile);
+    public void emit() throws IOException  {
+		Message message = CommandFactory.createEmitCommand(this);
         OrviboClient orviboClient = getNetworkContext();
         orviboClient.sendMessage(message);
 	}
@@ -29,23 +30,28 @@ public class AllOne extends OrviboDevice {
         orviboClient.sendMessage(message);
 	}
 	
-	public void setLearnName(String filename) {
-	    setFilename(filename);
-	}
 	
     public void saveIrData(byte[] data) throws IOException {
         String filename = getFilename();
-        if (filename != null && !"".equals(filename)) {
+        if (filename != null && !"".equals(filename)) { // TODO: StringUtils?
             Files.write(Paths.get(filename), data);
        }
     }
 
     public String getFilename() {
-        return filename;
+        return learnFilename;
     }
 
-    public void setFilename(String filename) {
-        this.filename = filename;
+    public void setLearnFilename(String learnFilename) {
+        this.learnFilename = learnFilename;
+    }
+
+    public String getEmitFilename() {
+        return emitFilename;
+    }
+
+    public void setEmitFilename(String emitFilename) {
+        this.emitFilename = emitFilename;
     }
 
 }

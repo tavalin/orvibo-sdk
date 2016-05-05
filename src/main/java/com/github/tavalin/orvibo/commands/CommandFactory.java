@@ -112,9 +112,10 @@ public class CommandFactory {
         return message;
     }
 
-    public static Message createEmitCommand(AllOne device, String file) throws IOException {
+    public static Message createEmitCommand(AllOne device) throws IOException {
 
         final String deviceId = device.getDeviceId();
+        final String file = device.getEmitFilename();
 
         final byte[] deviceIdBytes = Utils.hexStringToByteArray(deviceId);
         final byte[] paddingBytes = new byte[]{ Message.PADDING, Message.PADDING, Message.PADDING, Message.PADDING,
