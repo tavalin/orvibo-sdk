@@ -10,6 +10,14 @@ import com.github.tavalin.orvibo.commands.Command;
 public class Message {
 
     private static final Logger logger = LoggerFactory.getLogger(Message.class);
+    
+    // byte arrays
+    public static final byte[] B_HEADER = new byte[] {0x68, 0x64};
+    
+    
+    // commands
+    public static final byte[] B_GLOBAL = new byte[] {0x71, 0x61};
+    
 
     public static final byte PADDING = 0x20;
     public static final byte ZERO = 0x00;
