@@ -1,4 +1,4 @@
-package com.github.tavalin.s20.commands;
+package com.github.tavalin.orvibo.commands;
 
 // TODO: Auto-generated Javadoc
 /**
@@ -17,8 +17,11 @@ public enum Command {
     
     POWER_RESPONSE(0x7366),
     
-    SUBSCRIBE(0x636C)
-    ;
+    SUBSCRIBE(0x636C),
+    
+    LEARN_REQUEST(0x6c73),
+    
+    EMIT_REQUEST(0x6963);
 	
 	/** The code. */
 	private short code;

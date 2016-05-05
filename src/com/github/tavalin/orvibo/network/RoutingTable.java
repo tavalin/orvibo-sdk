@@ -1,4 +1,4 @@
-package com.github.tavalin.s20.network;
+package com.github.tavalin.orvibo.network;
 
 import java.net.InetSocketAddress;
 import java.util.HashMap;
@@ -7,7 +7,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.github.tavalin.s20.entities.DeviceMapping;
+import com.github.tavalin.orvibo.entities.DeviceMapping;
 
 // TODO: Auto-generated Javadoc
 /**

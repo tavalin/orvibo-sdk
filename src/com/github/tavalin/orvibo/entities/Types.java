@@ -1,4 +1,4 @@
-package com.github.tavalin.s20.entities;
+package com.github.tavalin.orvibo.entities;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,21 +9,6 @@ import org.slf4j.LoggerFactory;
  */
 public class Types {
 	
-	 /**
- 	 * The Enum DeviceReachability.
- 	 */
- 	public enum DeviceReachability {
-		 	
-	 		/** The reachable. */
-	 		REACHABLE,
-		 	
-	 		/** The unreachable. */
-	 		UNREACHABLE;
-	 		
- 		@SuppressWarnings("unused")
-		private static final Logger logger = LoggerFactory.getLogger(DeviceReachability.class);
-		 }
-
 		 /**
  		 * The Enum PowerState.
  		 */

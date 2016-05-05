@@ -1,4 +1,4 @@
-package com.github.tavalin.s20.entities;
+package com.github.tavalin.orvibo.entities;
 
 import java.net.InetSocketAddress;
 

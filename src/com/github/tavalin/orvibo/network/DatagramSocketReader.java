@@ -1,7 +1,7 @@
 /*
  * 
  */
-package com.github.tavalin.s20.network;
+package com.github.tavalin.orvibo.network;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -13,7 +13,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.github.tavalin.s20.protocol.Message;
+import com.github.tavalin.orvibo.protocol.Message;
 
 // TODO: Auto-generated Javadoc
 /**

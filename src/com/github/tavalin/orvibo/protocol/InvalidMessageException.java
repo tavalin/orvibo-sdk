@@ -1,4 +1,4 @@
-package com.github.tavalin.s20.protocol;
+package com.github.tavalin.orvibo.protocol;
 
 public class InvalidMessageException extends Exception {
 

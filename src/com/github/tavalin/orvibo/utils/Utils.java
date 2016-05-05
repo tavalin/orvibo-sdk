@@ -1,4 +1,4 @@
-package com.github.tavalin.s20.utils;
+package com.github.tavalin.orvibo.utils;
 
 import javax.xml.bind.DatatypeConverter;
 

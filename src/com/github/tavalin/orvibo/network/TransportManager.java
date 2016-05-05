@@ -1,4 +1,4 @@
-package com.github.tavalin.s20.network;
+package com.github.tavalin.orvibo.network;
 
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -15,13 +15,13 @@ import org.apache.commons.collections4.queue.CircularFifoQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.github.tavalin.s20.S20Client;
-import com.github.tavalin.s20.commands.Command;
-import com.github.tavalin.s20.commands.AbstractCommandHandler;
-import com.github.tavalin.s20.entities.DeviceMapping;
-import com.github.tavalin.s20.network.DatagramSocketReader.PacketListener;
-import com.github.tavalin.s20.protocol.InvalidMessageException;
-import com.github.tavalin.s20.protocol.Message;
+import com.github.tavalin.orvibo.OrviboClient;
+import com.github.tavalin.orvibo.commands.AbstractCommandHandler;
+import com.github.tavalin.orvibo.commands.Command;
+import com.github.tavalin.orvibo.entities.DeviceMapping;
+import com.github.tavalin.orvibo.network.DatagramSocketReader.PacketListener;
+import com.github.tavalin.orvibo.protocol.InvalidMessageException;
+import com.github.tavalin.orvibo.protocol.Message;
 
 // TODO: Auto-generated Javadoc
 /**
@@ -74,7 +74,7 @@ public class TransportManager implements PacketListener {
      * @param s20Client the s20 client
      * @throws SocketException the socket exception
      */
-    public TransportManager(S20Client s20Client) throws SocketException {
+    public TransportManager(OrviboClient s20Client) throws SocketException {
         udpSocket = new DatagramSocket(LISTEN_PORT);
         udpSocket.setBroadcast(true);
         writer = new DatagramSocketWriter(udpSocket);
@@ -260,11 +260,11 @@ public class TransportManager implements PacketListener {
     private void processMessage(InetAddress remoteAddress, Message message) {
         Command command = message.getCommand();
         AbstractCommandHandler handler = AbstractCommandHandler.getHandler(command);
-        if (handler != null && handler.isValidResponse(message)) {
+        if (handler != null) {
             String deviceId = handler.getDeviceId(message.getCommandPayload());
             routingTable.updateDeviceMapping(deviceId, new InetSocketAddress(remoteAddress, REMOTE_PORT));
             message.setDeviceId(deviceId);
-            handler.handleIncoming(message);
+            handler.handle(message);
         } else {
             logger.warn("No handler found for message {}", Message.bb2hex(message.asBytes()));
         }

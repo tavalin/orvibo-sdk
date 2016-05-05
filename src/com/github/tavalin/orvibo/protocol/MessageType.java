@@ -1,4 +1,4 @@
-package com.github.tavalin.s20.protocol;
+package com.github.tavalin.orvibo.protocol;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
