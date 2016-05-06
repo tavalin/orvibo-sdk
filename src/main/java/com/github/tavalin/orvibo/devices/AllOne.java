@@ -13,6 +13,7 @@ public class AllOne extends OrviboDevice {
     
     private String learnFilename = null;
     private String emitFilename = null;
+    private String rootFolder = null;
 	
 	public AllOne() {
         super(DeviceType.ALLONE);
@@ -32,14 +33,14 @@ public class AllOne extends OrviboDevice {
 	
 	
     public void saveIrData(byte[] data) throws IOException {
-        String filename = getFilename();
+        String filename = getLearnFilename();
         if (filename != null && !"".equals(filename)) { // TODO: StringUtils?
             Files.write(Paths.get(filename), data);
        }
     }
 
-    public String getFilename() {
-        return learnFilename;
+    public String getLearnFilename() {
+        return Paths.get(getRootFolder(), learnFilename).toString();
     }
 
     public void setLearnFilename(String learnFilename) {
@@ -47,11 +48,21 @@ public class AllOne extends OrviboDevice {
     }
 
     public String getEmitFilename() {
-        return emitFilename;
+        return Paths.get(getRootFolder(), emitFilename).toString();
+    }
+    
+    public void setRootFolder(String rootFolder) {
+        this.rootFolder = rootFolder;
     }
 
     public void setEmitFilename(String emitFilename) {
         this.emitFilename = emitFilename;
     }
+
+    public String getRootFolder() {
+        return rootFolder;
+    }
+
+
 
 }
