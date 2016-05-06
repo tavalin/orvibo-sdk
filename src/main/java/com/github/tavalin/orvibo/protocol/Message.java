@@ -17,6 +17,7 @@ public class Message {
     
     // commands
     public static final byte[] B_GLOBAL = new byte[] {0x71, 0x61};
+    public static final byte[] B_LOCAL = new byte[] {0x71, 0x67};
     
 
     public static final byte PADDING = 0x20;
