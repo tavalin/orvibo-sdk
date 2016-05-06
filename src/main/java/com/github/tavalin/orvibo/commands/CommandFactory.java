@@ -105,7 +105,7 @@ public class CommandFactory {
         
         // Construct message object
         Message message = new Message();
-        message.setCommand(Command.LEARN_REQUEST);
+        message.setCommand(Command.LEARN);
         message.setDeviceId(deviceId);
         message.setCommandPayload(payload);
 
@@ -127,11 +127,11 @@ public class CommandFactory {
         byte[] irLength = ByteBuffer.allocate(2).putShort((short)fileBuffer.length).array();
 
         // create command payload
-        byte[] payload = Bytes.concat(deviceIdBytes, paddingBytes, unknown, randoms, irLength,fileBuffer);
+        byte[] payload = Bytes.concat(deviceIdBytes, paddingBytes, unknown, randoms, irLength, fileBuffer);
         
         // Construct message object
         Message message = new Message();
-        message.setCommand(Command.EMIT_REQUEST);
+        message.setCommand(Command.EMIT);
         message.setDeviceId(deviceId);
         message.setCommandPayload(payload);
         return message;

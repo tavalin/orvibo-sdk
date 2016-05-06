@@ -1,6 +1,7 @@
 package com.github.tavalin.orvibo.commands;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,7 +13,7 @@ import com.github.tavalin.orvibo.devices.Socket;
 import com.github.tavalin.orvibo.protocol.Message;
 
 public class LearnHandler extends AbstractCommandHandler {
-    
+
     /** The logger. */
     private final Logger logger = LoggerFactory.getLogger(LearnHandler.class);
 
@@ -31,13 +32,18 @@ public class LearnHandler extends AbstractCommandHandler {
         if (isValidResponse(message)) {
 
             try {
-                logger.debug("Handling incoming message");
+                logger.debug("Handling learning response");
                 byte[] payload = message.getCommandPayload();
                 String deviceId = getDeviceId(payload);
                 OrviboDevice device = getDevice(deviceId);
-                AllOne allone = (AllOne) device;
-                byte[] data = message.getCommandPayload();
-                allone.saveIrData(data);
+                int irStart = 26;
+
+                byte[] in = message.asBytes();
+                if (in.length > irStart) {
+                    byte[] data = Arrays.copyOfRange(in, irStart, in.length);
+                    AllOne allone = (AllOne) device;
+                    allone.saveIrData(data);
+                }
             } catch (IOException e) {
                 logger.error(e.getMessage());
             }
@@ -51,11 +57,10 @@ public class LearnHandler extends AbstractCommandHandler {
         return logger;
     }
 
-
     @Override
     protected void updatePowerState(Socket socket, Message message) {
         // TODO Auto-generated method stub
-        
+
     }
 
 }

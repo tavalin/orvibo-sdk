@@ -6,22 +6,19 @@ package com.github.tavalin.orvibo.commands;
  */
 public enum Command {
 
-    /** The global. */
-    GLOBAL_DISCOVERY(0x7161),
+     GLOBAL_DISCOVERY(0x7161),
     
-    /** The local. */
-    LOCAL_DISCOVERY(0x7167),
+     LOCAL_DISCOVERY(0x7167),
     
-    /** The power. */
-    POWER_REQUEST(0x6463),
+     POWER_REQUEST(0x6463),
     
-    POWER_RESPONSE(0x7366),
+    POWER(0x7366),
     
     SUBSCRIBE(0x636C),
     
-    LEARN_REQUEST(0x6c73),
+    LEARN(0x6c73),
     
-    EMIT_REQUEST(0x6963);
+    EMIT(0x6963);
 	
 	/** The code. */
 	private short code;

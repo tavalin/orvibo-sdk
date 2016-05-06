@@ -55,9 +55,10 @@ public abstract class AbstractCommandHandler  {
         try {
             map.put(Command.GLOBAL_DISCOVERY, new GlobalDiscoveryHandler(OrviboClient.getInstance()));
             map.put(Command.LOCAL_DISCOVERY, new LocalDiscoveryHandler(OrviboClient.getInstance()));
-            map.put(Command.POWER_REQUEST, new PowerHandler(OrviboClient.getInstance()));
-            map.put(Command.POWER_RESPONSE, new PowerHandler(OrviboClient.getInstance()));
+            map.put(Command.POWER, new PowerHandler(OrviboClient.getInstance()));
             map.put(Command.SUBSCRIBE, new SubscribeHandler(OrviboClient.getInstance()));
+            map.put(Command.LEARN, new LearnHandler(OrviboClient.getInstance()));
+            map.put(Command.EMIT, new EmitHandler(OrviboClient.getInstance()));
         } catch (SocketException e) {
             LoggerFactory.getLogger(AbstractCommandHandler.class).error("Could not create command map: {}",
                     e.getMessage());
