@@ -1,6 +1,7 @@
 package com.github.tavalin.orvibo.commands;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -32,7 +33,6 @@ public class CommandFactory {
 
     public static Message createLocalDiscoveryCommand(OrviboDevice device) {
         final String deviceId = device.getDeviceId();
-
         final byte[] deviceIdBytes = Utils.hexStringToByteArray(deviceId);
         final byte[] paddingBytes = new byte[] { Message.PADDING, Message.PADDING, Message.PADDING, Message.PADDING,
                 Message.PADDING, Message.PADDING };
@@ -124,9 +124,10 @@ public class CommandFactory {
         final byte[] randoms = new byte[] { randomByte(), randomByte() };
         Path path = Paths.get(file);
         byte[] fileBuffer = Files.readAllBytes(path);
+        byte[] irLength = ByteBuffer.allocate(2).putShort((short)fileBuffer.length).array();
 
         // create command payload
-        byte[] payload = Bytes.concat(deviceIdBytes, paddingBytes, unknown, randoms, fileBuffer);
+        byte[] payload = Bytes.concat(deviceIdBytes, paddingBytes, unknown, randoms, irLength,fileBuffer);
         
         // Construct message object
         Message message = new Message();
