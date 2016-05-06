@@ -13,7 +13,7 @@ public class AllOne extends OrviboDevice {
     
     private String learnFilename = null;
     private String emitFilename = null;
-    private String rootFolder = null;
+    private String rootFolder = "";
 	
 	public AllOne() {
         super(DeviceType.ALLONE);
