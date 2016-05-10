@@ -51,6 +51,7 @@
 		<guavaVersion>19.0</guavaVersion>
 		<junitVersion>4.12</junitVersion>
 		<mockitoVersion>2.0.52-beta</mockitoVersion>
+		<lang3Version>3.0</lang3Version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -81,6 +82,13 @@
 			<artifactId>mockito-core</artifactId>
 			<version>${mockitoVersion}</version>
 		</dependency>
+		
+		<dependency>
+	<groupId>org.apache.commons</groupId>
+	<artifactId>commons-lang3</artifactId>
+	<version>${lang3Version}</version>
+</dependency>
+		
 
 	</dependencies>
 

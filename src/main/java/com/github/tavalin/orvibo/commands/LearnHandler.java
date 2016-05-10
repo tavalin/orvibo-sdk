@@ -10,6 +10,7 @@ import com.github.tavalin.orvibo.OrviboClient;
 import com.github.tavalin.orvibo.devices.AllOne;
 import com.github.tavalin.orvibo.devices.OrviboDevice;
 import com.github.tavalin.orvibo.devices.Socket;
+import com.github.tavalin.orvibo.exceptions.OrviboException;
 import com.github.tavalin.orvibo.protocol.Message;
 
 public class LearnHandler extends AbstractCommandHandler {
@@ -45,6 +46,8 @@ public class LearnHandler extends AbstractCommandHandler {
                     allone.saveIrData(data);
                 }
             } catch (IOException e) {
+                logger.error(e.getMessage());
+            } catch (OrviboException e) {
                 logger.error(e.getMessage());
             }
         }
