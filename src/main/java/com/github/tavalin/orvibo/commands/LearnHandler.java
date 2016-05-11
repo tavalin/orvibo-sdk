@@ -56,7 +56,6 @@ public class LearnHandler extends AbstractCommandHandler {
 
     @Override
     protected Logger getLogger() {
-        // TODO Auto-generated method stub
         return logger;
     }
 
