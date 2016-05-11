@@ -36,12 +36,12 @@ public class AllOne extends OrviboDevice {
     }
 
     public void saveLearnedData(byte[] data) throws IOException {
-        Path path = getLearnPath();
-        if (path == null) {
+        Path learnPath = getLearnPath();
+        if (learnPath == null) {
             throw new IOException("Learn path has not been set. Could not save data.");
         }
-        logger.debug("writing learn data to {}",path.getFileName());
-        Files.write(path, data);
+        logger.debug("writing learn data to {}", learnPath.toAbsolutePath() );
+        Files.write(learnPath, data);
     }
 
      public Path getLearnPath() {
@@ -50,7 +50,7 @@ public class AllOne extends OrviboDevice {
 
     public void setLearnPath(Path learnPath) {
         this.learnPath = learnPath;
-        logger.debug("learn path set to {}", learnPath.getFileName());
+        logger.debug("learn path set to {}", learnPath.toAbsolutePath());
     }
   
 
