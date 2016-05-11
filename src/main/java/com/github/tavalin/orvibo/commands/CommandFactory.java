@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -112,18 +111,18 @@ public class CommandFactory {
         return message;
     }
 
-    public static Message createEmitCommand(AllOne device) throws IOException {
+    public static Message createEmitCommand(AllOne device, Path file) throws IOException {
 
         final String deviceId = device.getDeviceId();
-        final String file = device.getEmitFilename();
 
         final byte[] deviceIdBytes = Utils.hexStringToByteArray(deviceId);
         final byte[] paddingBytes = new byte[]{ Message.PADDING, Message.PADDING, Message.PADDING, Message.PADDING,
                 Message.PADDING, Message.PADDING };
         final byte[] unknown = new byte[] { 0x65, 0x00, 0x00, 0x00 };
         final byte[] randoms = new byte[] { randomByte(), randomByte() };
-        Path path = Paths.get(file);
-        byte[] fileBuffer = Files.readAllBytes(path);
+
+        byte[] fileBuffer = Files.readAllBytes(file);
+
         byte[] irLength = ByteBuffer.allocate(2).putShort((short)fileBuffer.length).array();
 
         // create command payload

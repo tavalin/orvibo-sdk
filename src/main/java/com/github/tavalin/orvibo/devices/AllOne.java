@@ -1,69 +1,49 @@
 package com.github.tavalin.orvibo.devices;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Paths;
-
-import org.apache.commons.lang3.StringUtils;
+import java.nio.file.Path;
 
 import com.github.tavalin.orvibo.OrviboClient;
 import com.github.tavalin.orvibo.commands.CommandFactory;
-import com.github.tavalin.orvibo.exceptions.OrviboException;
 import com.github.tavalin.orvibo.protocol.Message;
 
 public class AllOne extends OrviboDevice {
 
-    private String learnFilename = null;
-    private String emitFilename = null;
-    private String rootFolder = File.pathSeparator;
-
+    private Path learnPath = null;
+    
     public AllOne() {
         super(DeviceType.ALLONE);
     }
 
-    public void emit() throws IOException {
-        Message message = CommandFactory.createEmitCommand(this);
+    public void emit(Path file) throws IOException {
+        Message message = CommandFactory.createEmitCommand(this, file);
         OrviboClient orviboClient = getNetworkContext();
         orviboClient.sendMessage(message);
     }
 
-    public void learn() {
+    public void learn(Path file) {
         Message message = CommandFactory.createLearnCommand(this);
+        setLearnPath(file);
         OrviboClient orviboClient = getNetworkContext();
         orviboClient.sendMessage(message);
     }
 
-    public void saveIrData(byte[] data) throws IOException, OrviboException {
-        String filename = getLearnFilename();
-        Files.write(Paths.get(filename), data);
-    }
-
-    public String getLearnFilename() throws OrviboException {
-        if (StringUtils.isBlank(learnFilename) || learnFilename.indexOf(".") < 0) {
-            throw new OrviboException("Learn filename has not been set.");
+    public void saveLearnedData(byte[] data) throws IOException {
+        Path path = getLearnPath();
+        if (path == null) {
+            throw new IOException("Learn path has not been set. Could not save data.");
         }
-        return Paths.get(getRootFolder(), learnFilename).toString();
+        Files.write(path, data);
     }
 
-    public void setLearnFilename(String learnFilename) {
-        this.learnFilename = learnFilename;
+     public Path getLearnPath() {
+        return learnPath;
     }
 
-    public String getEmitFilename() {
-        return Paths.get(getRootFolder(), emitFilename).toString();
+    public void setLearnPath(Path learnPath) {
+        this.learnPath = learnPath;
     }
-
-    public void setRootFolder(String rootFolder) {
-        this.rootFolder = rootFolder;
-    }
-
-    public void setEmitFilename(String emitFilename) {
-        this.emitFilename = emitFilename;
-    }
-
-    public String getRootFolder() {
-        return rootFolder;
-    }
+  
 
 }

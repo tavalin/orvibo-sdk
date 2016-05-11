@@ -6,6 +6,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 
 import org.junit.Before;
@@ -96,10 +98,9 @@ public class OutboundMessageTest {
 
     @Test
     public void emit() {
-        String testFile = "src/test/resources/test.ir";
-        when(allone.getEmitFilename()).thenReturn(testFile);
+        Path testfile = Paths.get("src/test/resources/test.ir");
         try {
-            Message emit = CommandFactory.createEmitCommand(allone);
+            Message emit = CommandFactory.createEmitCommand(allone, testfile);
 
             byte[] expectedEmit = new byte[] { 0x68, 0x64, 0x00, 0x1D, 0x69, 0x63, (byte) 0xFF, (byte) 0xAA,
                     (byte) 0xBB, (byte) 0xCC, (byte) 0xDD, (byte) 0xEE, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x65, 0x00,
@@ -114,7 +115,7 @@ public class OutboundMessageTest {
             assertArrayEquals(startExpectedEmit, startEmit);
             assertArrayEquals(endExpectedEmit, endEmit);
         } catch (IOException e) {
-            fail("Could not open test file " + testFile);
+            fail("Could not open test file " + testfile.getFileName());
         }
     }
 }

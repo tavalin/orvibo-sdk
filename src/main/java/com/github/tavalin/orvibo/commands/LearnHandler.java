@@ -10,7 +10,6 @@ import com.github.tavalin.orvibo.OrviboClient;
 import com.github.tavalin.orvibo.devices.AllOne;
 import com.github.tavalin.orvibo.devices.OrviboDevice;
 import com.github.tavalin.orvibo.devices.Socket;
-import com.github.tavalin.orvibo.exceptions.OrviboException;
 import com.github.tavalin.orvibo.protocol.Message;
 
 public class LearnHandler extends AbstractCommandHandler {
@@ -37,19 +36,20 @@ public class LearnHandler extends AbstractCommandHandler {
                 byte[] payload = message.getCommandPayload();
                 String deviceId = getDeviceId(payload);
                 OrviboDevice device = getDevice(deviceId);
+                if (device == null) {
+                    return;
+                }
                 int irStart = 26;
 
                 byte[] in = message.asBytes();
                 if (in.length > irStart) {
                     byte[] data = Arrays.copyOfRange(in, irStart, in.length);
                     AllOne allone = (AllOne) device;
-                    allone.saveIrData(data);
+                    allone.saveLearnedData(data);
                 }
             } catch (IOException e) {
                 logger.error(e.getMessage());
-            } catch (OrviboException e) {
-                logger.error(e.getMessage());
-            }
+            } 
         }
 
     }
