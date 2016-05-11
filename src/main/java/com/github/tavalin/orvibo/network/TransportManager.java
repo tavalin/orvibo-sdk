@@ -67,6 +67,8 @@ public class TransportManager implements PacketListener {
     public final static int LISTEN_PORT = 10000;
 
     public final static int STORED_MESSAGES = 1;
+    
+    public final static int DISCONNECT_TIMEOUT = 30000;
 
     /**
      * Instantiates a new transport manager.
@@ -115,10 +117,10 @@ public class TransportManager implements PacketListener {
             if (isConnected()) {
                 
                 readerThread.interrupt();
-                readerThread.join();
+                readerThread.join(DISCONNECT_TIMEOUT);
                 
                 writerThread.interrupt();
-                writerThread.join();
+                writerThread.join(DISCONNECT_TIMEOUT);
 
             }
         } catch (InterruptedException e) {
