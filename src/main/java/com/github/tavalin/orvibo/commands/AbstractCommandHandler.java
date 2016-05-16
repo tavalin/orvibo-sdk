@@ -201,6 +201,11 @@ public abstract class AbstractCommandHandler  {
         return state;
     }
     
+    protected void handleInvalidResponse(Message message) {
+        Logger logger = getLogger();
+        logger.warn("Not valid response: " + Message.bb2hex(message.asBytes()));
+    }
+    
     
 
 

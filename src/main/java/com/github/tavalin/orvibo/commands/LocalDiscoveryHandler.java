@@ -13,9 +13,11 @@ import com.github.tavalin.orvibo.protocol.Message;
 public class LocalDiscoveryHandler extends AbstractCommandHandler {
 
     private final Logger logger = LoggerFactory.getLogger(LocalDiscoveryHandler.class);
-    private int DEVICE_START = 1;
-    private int DEVICE_END = 7;
-    private int RESPONSE_LENGTH = 42;
+    private final static int DEVICE_START = 1;
+    private final static int DEVICE_END = 7;
+    private final static int ALLONE_RESPONSE_LENGTH = 41;
+    private final static int SOCKET_RESPONSE_LENGTH = 42;
+
 
     public LocalDiscoveryHandler(OrviboClient client) {
         super(client);
@@ -37,8 +39,8 @@ public class LocalDiscoveryHandler extends AbstractCommandHandler {
             } else {
                 logger.warn("Unknown device type");
             }
-        } else {
-            logger.warn("Not valid response.");
+        }  else {
+            handleInvalidResponse(message);
         }
     }
 
@@ -67,7 +69,7 @@ public class LocalDiscoveryHandler extends AbstractCommandHandler {
     public boolean isValidResponse(Message message) {
         boolean isValid = false;
         byte[] bytes = message.asBytes();
-        isValid = bytes.length == RESPONSE_LENGTH;
+        isValid = (bytes.length == SOCKET_RESPONSE_LENGTH || bytes.length == ALLONE_RESPONSE_LENGTH) ;
         return isValid;
     }
 

@@ -23,7 +23,6 @@ public class LearnHandler extends AbstractCommandHandler {
 
     @Override
     public boolean isValidResponse(Message message) {
-        // TODO Auto-generated method stub
         return true;
     }
 

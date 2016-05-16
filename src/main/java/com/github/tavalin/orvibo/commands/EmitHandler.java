@@ -1,34 +1,33 @@
 package com.github.tavalin.orvibo.commands;
 
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.github.tavalin.orvibo.OrviboClient;
 import com.github.tavalin.orvibo.devices.Socket;
 import com.github.tavalin.orvibo.protocol.Message;
 
 public class EmitHandler extends AbstractCommandHandler {
+    
+    /** The logger. */
+    private final Logger logger = LoggerFactory.getLogger(EmitHandler.class);
 
 	public EmitHandler(OrviboClient client) {
         super(client);
-        // TODO Auto-generated constructor stub
     }
 
     public void handle(Message message) {
-		// TODO Auto-generated method stub
-		
+        logger.debug("Handling emitting response");
 	}
-//
 
     @Override
     public boolean isValidResponse(Message message) {
-        // TODO Auto-generated method stub
-        return false;
+        return true;
     }
 
     @Override
     protected Logger getLogger() {
-        // TODO Auto-generated method stub
-        return null;
+        return logger;
     }
 
 

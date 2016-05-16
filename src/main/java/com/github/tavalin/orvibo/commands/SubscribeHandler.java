@@ -13,7 +13,8 @@ import com.github.tavalin.orvibo.protocol.Message;
 public class SubscribeHandler extends AbstractCommandHandler {
 
     private final Logger logger = LoggerFactory.getLogger(SubscribeHandler.class);
-    private int RESPONSE_LENGTH = 24;
+    private final static int ALLONE_RESPONSE_LENGTH = 23;
+    private final static int SOCKET_RESPONSE_LENGTH = 24;
 
     public SubscribeHandler(OrviboClient client) {
         super(client);
@@ -37,7 +38,7 @@ public class SubscribeHandler extends AbstractCommandHandler {
                 logger.warn("Unknown device type");
             }
         } else {
-            logger.warn("Not valid response.");
+            handleInvalidResponse(message);
         }
     }
     
@@ -58,7 +59,7 @@ public class SubscribeHandler extends AbstractCommandHandler {
     public boolean isValidResponse(Message message) {
         boolean isValid = false;
         byte[] bytes = message.asBytes();
-        isValid = bytes.length == RESPONSE_LENGTH;
+        isValid = (bytes.length == SOCKET_RESPONSE_LENGTH || bytes.length == ALLONE_RESPONSE_LENGTH) ;
         return isValid;
     }
 
