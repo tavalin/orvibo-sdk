@@ -19,14 +19,6 @@ public class GlobalDiscoveryHandler extends AbstractCommandHandler {
         super(client);
     }
 
-    public void handle(Message message) {
-        if(isValidResponse(message)) {
-            createDevice(message);
-        } else {
-            handleInvalidResponse(message);
-        }
-    }
-
     @Override
     public Logger getLogger() {
         return logger;
@@ -46,6 +38,11 @@ public class GlobalDiscoveryHandler extends AbstractCommandHandler {
         byte[] bytes = message.asBytes();
         isValid = (bytes.length == SOCKET_RESPONSE_LENGTH || bytes.length == ALLONE_RESPONSE_LENGTH) ;
         return isValid;
+    }
+
+    @Override
+    protected void handleInternal(Message message) {
+        createDevice(message);
     }
 
 }

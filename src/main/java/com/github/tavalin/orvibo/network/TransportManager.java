@@ -11,6 +11,7 @@ import java.net.SocketException;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.Iterator;
+
 import org.apache.commons.collections4.queue.CircularFifoQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,8 +20,8 @@ import com.github.tavalin.orvibo.OrviboClient;
 import com.github.tavalin.orvibo.commands.AbstractCommandHandler;
 import com.github.tavalin.orvibo.commands.Command;
 import com.github.tavalin.orvibo.entities.DeviceMapping;
+import com.github.tavalin.orvibo.exceptions.OrviboException;
 import com.github.tavalin.orvibo.network.DatagramSocketReader.PacketListener;
-import com.github.tavalin.orvibo.protocol.InvalidMessageException;
 import com.github.tavalin.orvibo.protocol.Message;
 
 // TODO: Auto-generated Javadoc
@@ -67,7 +68,7 @@ public class TransportManager implements PacketListener {
     public final static int LISTEN_PORT = 10000;
 
     public final static int STORED_MESSAGES = 1;
-    
+
     public final static int DISCONNECT_TIMEOUT = 30000;
 
     /**
@@ -115,10 +116,10 @@ public class TransportManager implements PacketListener {
     public void disconnect() {
         try {
             if (isConnected()) {
-                
+
                 readerThread.interrupt();
                 readerThread.join(DISCONNECT_TIMEOUT);
-                
+
                 writerThread.interrupt();
                 writerThread.join(DISCONNECT_TIMEOUT);
 
@@ -244,18 +245,19 @@ public class TransportManager implements PacketListener {
 
     @Override
     public synchronized void packetReceived(DatagramPacket packet) {
-        InetAddress remoteAddress = packet.getAddress();
-        if (!isLocalAddress(remoteAddress) && !packetAlreadyReceived(packet)) {
+        try {
+            InetAddress remoteAddress = packet.getAddress();
+            if (!isLocalAddress(remoteAddress) && !packetAlreadyReceived(packet)) {
                 byte[] bytes = Arrays.copyOfRange(packet.getData(), packet.getOffset(), packet.getLength());
                 logger.debug("Received Message = {}", Message.bb2hex(bytes));
-                try {
-                    Message message = new Message(bytes);
-                    processMessage(remoteAddress, message);
-                    previousPackets.add(packet);
-                }
-                catch (InvalidMessageException ex) {
-                    logger.warn("Message is invalid, ignoring.");
-                }
+
+                Message message = new Message(bytes);
+                processMessage(remoteAddress, message);
+                previousPackets.add(packet);
+            }
+
+        } catch (OrviboException ex) {
+            logger.warn("Message is invalid, ignoring.");
         }
     }
 
@@ -263,12 +265,15 @@ public class TransportManager implements PacketListener {
         Command command = message.getCommand();
         AbstractCommandHandler handler = AbstractCommandHandler.getHandler(command);
         if (handler != null) {
-            String deviceId = handler.getDeviceId(message.getCommandPayload());
-            routingTable.updateDeviceMapping(deviceId, new InetSocketAddress(remoteAddress, REMOTE_PORT));
-            message.setDeviceId(deviceId);
-            handler.handle(message);
-        } else {
-            logger.warn("No handler found for message {}", Message.bb2hex(message.asBytes()));
+            try {
+                String deviceId = handler.getDeviceId(message.getCommandPayload());
+                routingTable.updateDeviceMapping(deviceId, new InetSocketAddress(remoteAddress, REMOTE_PORT));
+                message.setDeviceId(deviceId);
+
+                handler.handle(message);
+            } catch (OrviboException e) {
+                logger.warn("Unable to handle message {}", Message.bb2hex(message.asBytes()));
+            }
         }
     }
 

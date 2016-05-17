@@ -33,7 +33,7 @@ public class OrviboClient {
     private static OrviboClient instance;
 
     /** The transport manager. */
-    private final TransportManager transportManager;
+    private TransportManager transportManager;
 
     /** The all devices collection. */
     private final Map<String, OrviboDevice> allDevices = new HashMap<String, OrviboDevice>();
@@ -79,6 +79,8 @@ public class OrviboClient {
 
         if (instance == null) {
             instance = new OrviboClient();
+            TransportManager tm = new TransportManager(instance);
+            instance.setTransportManager(tm);
             logger.debug("New OrviboClient instance created.");
         }
         return instance;
@@ -91,8 +93,20 @@ public class OrviboClient {
      * @throws SocketException
      *             the socket exception
      */
-    public OrviboClient() throws SocketException {
-        transportManager = new TransportManager(this);
+    public OrviboClient()  {
+       
+    }
+    
+    public OrviboClient(TransportManager tm) {
+        setTransportManager(tm);
+    }
+    
+    public TransportManager getTransportManager() {
+        return transportManager;
+    }
+    
+    public void setTransportManager(TransportManager tm) {
+        transportManager = tm;
     }
 
     /**
@@ -119,8 +133,6 @@ public class OrviboClient {
      * Global discovery.
      */
     public void globalDiscovery() {
-        // final AbstractCommandHandler handler = AbstractCommandHandler.getHandler(Command.GLOBAL_DISCOVERY);
-        // final Message message = handler.createMessage(null, null);
         final Message message = CommandFactory.createGlobalDiscoveryCommand();
         sendMessage(message);
     }

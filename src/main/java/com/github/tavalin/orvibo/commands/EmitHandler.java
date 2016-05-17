@@ -4,25 +4,24 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.github.tavalin.orvibo.OrviboClient;
-import com.github.tavalin.orvibo.devices.Socket;
 import com.github.tavalin.orvibo.protocol.Message;
 
 public class EmitHandler extends AbstractCommandHandler {
     
     /** The logger. */
     private final Logger logger = LoggerFactory.getLogger(EmitHandler.class);
+    private final static int ALLONE_RESPONSE_LENGTH = 25;
 
 	public EmitHandler(OrviboClient client) {
         super(client);
     }
 
-    public void handle(Message message) {
-        logger.debug("Handling emitting response");
-	}
-
     @Override
     public boolean isValidResponse(Message message) {
-        return true;
+        boolean isValid = false;
+        byte[] bytes = message.asBytes();
+        isValid = bytes.length == ALLONE_RESPONSE_LENGTH;
+        return isValid;
     }
 
     @Override
@@ -30,10 +29,8 @@ public class EmitHandler extends AbstractCommandHandler {
         return logger;
     }
 
-
     @Override
-    protected void updatePowerState(Socket socket, Message message) {
-        // TODO Auto-generated method stub
-        
+    protected void handleInternal(Message message) {
+        logger.debug("Handling emitting response");
     }
 }

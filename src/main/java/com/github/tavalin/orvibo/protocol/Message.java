@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.github.tavalin.orvibo.commands.Command;
+import com.github.tavalin.orvibo.exceptions.OrviboException;
 
 public class Message {
 
@@ -60,13 +61,13 @@ public class Message {
      * @param buffer
      *            the buffer to create the SerialMessage from.
      */
-    public Message(byte[] buffer) throws InvalidMessageException {
+    public Message(byte[] buffer) throws OrviboException {
         messageLength = (short) buffer.length;
         if (buffer.length < MIN_LENGTH) {
             isAcknowledged = false;
             String err = String.format("Message is invalid. Actual Length = %d, Minimum Length = %d", messageLength,
                     MIN_LENGTH);
-            throw new InvalidMessageException(err);
+            throw new OrviboException(err);
         }
         command = Command.getCommand(Message.getAsShort(buffer, 4, 5));
         
@@ -81,7 +82,7 @@ public class Message {
             isAcknowledged = false;
             String err = String.format("Message is invalid. Actual Length = %d, Expected Length = %d", messageLength,
                     expectedLength);
-            throw new InvalidMessageException(err);
+            throw new OrviboException(err);
         }
     }
 

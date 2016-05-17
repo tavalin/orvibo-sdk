@@ -12,6 +12,7 @@ import com.github.tavalin.orvibo.OrviboClient;
 import com.github.tavalin.orvibo.devices.OrviboDevice;
 import com.github.tavalin.orvibo.devices.Socket;
 import com.github.tavalin.orvibo.entities.Types.PowerState;
+import com.github.tavalin.orvibo.exceptions.OrviboException;
 import com.github.tavalin.orvibo.protocol.Message;
 import com.github.tavalin.orvibo.utils.Utils;
 import com.google.common.primitives.Bytes;
@@ -167,15 +168,24 @@ public abstract class AbstractCommandHandler  {
         OrviboClient client = getClient();
         client.allOneWithDeviceId(deviceId);
     }
-    
-    public abstract boolean isValidResponse(Message message);
-
+   
     /**
      * Handle incoming.
      * 
      * @param message the message
+     * @throws OrviboException 
      */
-    public abstract void handle(Message message);
+    public void handle(Message message) throws OrviboException {
+        if(isValidResponse(message)) {
+            handleInternal(message);
+        } else {
+            handleInvalidResponse(message);
+        }
+    }
+    
+    public abstract boolean isValidResponse(Message message);
+    
+    protected abstract void handleInternal(Message message);
 
     /**
      * Gets the logger.
@@ -201,9 +211,10 @@ public abstract class AbstractCommandHandler  {
         return state;
     }
     
-    protected void handleInvalidResponse(Message message) {
-        Logger logger = getLogger();
-        logger.warn("Not valid response: " + Message.bb2hex(message.asBytes()));
+    protected void handleInvalidResponse(Message message) throws OrviboException {
+        //Logger logger = getLogger();
+        //logger.warn("Not valid response: " + Message.bb2hex(message.asBytes()));
+        throw new OrviboException("Not valid response: " + Message.bb2hex(message.asBytes()));
     }
     
     
