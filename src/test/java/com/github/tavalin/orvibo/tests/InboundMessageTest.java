@@ -3,13 +3,16 @@ package com.github.tavalin.orvibo.tests;
 import java.io.IOException;
 import java.net.SocketException;
 import java.nio.file.Files;
+import java.util.Arrays;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import static org.junit.Assert.assertArrayEquals;
 
 import com.github.tavalin.orvibo.OrviboClient;
 import com.github.tavalin.orvibo.commands.AbstractCommandHandler;
+import com.github.tavalin.orvibo.commands.CommandFactory;
 import com.github.tavalin.orvibo.devices.AllOne;
 import com.github.tavalin.orvibo.exceptions.OrviboException;
 import com.github.tavalin.orvibo.protocol.Message;
@@ -104,6 +107,23 @@ public class InboundMessageTest {
         device.setLearnPath(Files.createTempFile("ircode", ".tmp"));
         testHandler(buf);
     }
+    
+    @Test
+    public void learnAndEmit() throws IOException, OrviboException {
+        byte[] buf = Utils.hexStringToByteArray(
+                "686400b26c73ACCF2372E1502020202020200000000000029800000000009800000000000000000088001423751138022002330226021e02220237021f02340225021f02210237022002330225021f028b0634027a0637028c061f028c063402790638028b0620028c06340279063702200234027806380220023302790637028d061e0223023602f305b802230236028d061f02220236028c061e0223023602210233027806360221023402770638020000");
+        AllOne device = OrviboClient.getInstance().allOneWithDeviceId("ACCF2372E150");
+        device.setLearnPath(Files.createTempFile("ircode", ".tmp"));
+        testHandler(buf);
+        
+        
+        Message emit = CommandFactory.createEmitCommand(device, device.getLearnPath());
+        System.out.println(Message.bb2hex(emit.asBytes()));
+        
+        byte[] learnCode = Arrays.copyOfRange(buf ,26, buf.length);
+        byte[] emitCode = Arrays.copyOfRange(emit.asBytes() ,26, emit.asBytes().length);
+        assertArrayEquals(learnCode, emitCode);
+    }
 
     @After
     public void cleanUp() {
@@ -115,5 +135,6 @@ public class InboundMessageTest {
         AbstractCommandHandler handler = AbstractCommandHandler.getHandler(message.getCommand());
         handler.handle(message);
     }
+    
 
 }
