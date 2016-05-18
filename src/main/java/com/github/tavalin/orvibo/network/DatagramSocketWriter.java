@@ -56,7 +56,7 @@ public class DatagramSocketWriter implements Runnable {
             } catch (InterruptedException e) {
                 logger.debug("Interrupted.");
                 running = false;
-                //Thread.currentThread().interrupt();
+                Thread.currentThread().interrupt();
             } catch (IOException e) {
                 logger.error(e.getMessage());
             }

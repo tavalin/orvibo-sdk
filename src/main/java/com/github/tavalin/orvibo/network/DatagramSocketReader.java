@@ -55,7 +55,7 @@ public class DatagramSocketReader implements Runnable {
     /** The listeners. */
     private List<PacketListener> listeners;
     
-    public final int BUFFER_SIZE = 256;
+    public final int BUFFER_SIZE = 1024;
 
     /**
      * Instantiates a new datagram socket reader.
@@ -90,7 +90,7 @@ public class DatagramSocketReader implements Runnable {
             } catch (IOException e) {
                 logger.debug("Interrupted.");
                 running = false;
-                //Thread.currentThread().interrupt();
+                Thread.currentThread().interrupt();
             }
         }
         logger.debug("Run loop ended.");
