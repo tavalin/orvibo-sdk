@@ -16,6 +16,7 @@ public class LearnHandler extends AbstractCommandHandler {
     /** The logger. */
     private final Logger logger = LoggerFactory.getLogger(LearnHandler.class);
     private final static int ALLONE_RESPONSE_LENGTH = 24;
+    private final static int ALLONE_COMMAND_START = 26;
 
     public LearnHandler(OrviboClient client) {
         super(client);
@@ -40,9 +41,11 @@ public class LearnHandler extends AbstractCommandHandler {
                 return;
             }
             byte[] in = message.asBytes();
-            byte[] data = Arrays.copyOfRange(in, ALLONE_RESPONSE_LENGTH, in.length);
-            AllOne allone = (AllOne) device;
-            allone.saveLearnedData(data);
+            if (in.length >= ALLONE_COMMAND_START) {
+                byte[] data = Arrays.copyOfRange(in, ALLONE_COMMAND_START, in.length);
+                AllOne allone = (AllOne) device;
+                allone.saveLearnedData(data);
+            }
         } catch (IOException e) {
             logger.error(e.getMessage());
         }
