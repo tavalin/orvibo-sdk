@@ -26,7 +26,7 @@ public class CommandFactory {
     public static Message createGlobalDiscoveryCommand() {
         Message message = new Message();
         message.setCommand(Command.GLOBAL_DISCOVERY);
-        logger.debug("Constructed message {}", Message.bb2hex(message.asBytes()));
+        logger.debug("Constructed message {}", Utils.toPrettyHexString(message.asBytes()));
         return message;
     }
 
@@ -45,7 +45,7 @@ public class CommandFactory {
         message.setDeviceId(deviceId);
         message.setCommandPayload(payload);
 
-        logger.debug("Constructed message {}", Message.bb2hex(message.asBytes()));
+        logger.debug("Constructed message {}", Utils.toPrettyHexString(message.asBytes()));
 
         return message;
     }
@@ -69,7 +69,7 @@ public class CommandFactory {
         message.setDeviceId(deviceId);
         message.setCommandPayload(payload);
 
-        logger.debug("Constructed message {}", Message.bb2hex(message.asBytes()));
+        logger.debug("Constructed message {}", Utils.toPrettyHexString(message.asBytes()));
         return message;
     }
 

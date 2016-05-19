@@ -212,9 +212,7 @@ public abstract class AbstractCommandHandler  {
     }
     
     protected void handleInvalidResponse(Message message) throws OrviboException {
-        //Logger logger = getLogger();
-        //logger.warn("Not valid response: " + Message.bb2hex(message.asBytes()));
-        throw new OrviboException("Not valid response: " + Message.bb2hex(message.asBytes()));
+        throw new OrviboException("Not valid response: " + Utils.toPrettyHexString((message.asBytes())));
     }
     
     
