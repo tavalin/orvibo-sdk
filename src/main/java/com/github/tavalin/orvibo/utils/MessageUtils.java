@@ -2,7 +2,7 @@ package com.github.tavalin.orvibo.utils;
 
 import javax.xml.bind.DatatypeConverter;
 
-public class Utils {
+public class MessageUtils {
 
     /**
      * Converts a hex string to a byte array. Found at

@@ -14,7 +14,7 @@ import com.github.tavalin.orvibo.devices.Socket;
 import com.github.tavalin.orvibo.entities.Types.PowerState;
 import com.github.tavalin.orvibo.exceptions.OrviboException;
 import com.github.tavalin.orvibo.protocol.Message;
-import com.github.tavalin.orvibo.utils.Utils;
+import com.github.tavalin.orvibo.utils.MessageUtils;
 import com.google.common.primitives.Bytes;
 
 
@@ -121,7 +121,7 @@ public abstract class AbstractCommandHandler  {
         final int end = getDeviceEnd();
         if (end < payload.length) {
             final byte[] deviceIdBytes = Arrays.copyOfRange(payload, start, end);
-            deviceId = Utils.toHexString(deviceIdBytes);
+            deviceId = MessageUtils.toHexString(deviceIdBytes);
             final Logger logger = getLogger();
             logger.debug("Extracted deviceId as '{}'", deviceId);
         }
@@ -212,7 +212,7 @@ public abstract class AbstractCommandHandler  {
     }
     
     protected void handleInvalidResponse(Message message) throws OrviboException {
-        throw new OrviboException("Not valid response: " + Utils.toPrettyHexString((message.asBytes())));
+        throw new OrviboException("Not valid response: " + MessageUtils.toPrettyHexString((message.asBytes())));
     }
     
     

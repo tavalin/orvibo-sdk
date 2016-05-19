@@ -13,7 +13,7 @@ import com.github.tavalin.orvibo.devices.OrviboDevice;
 import com.github.tavalin.orvibo.devices.Socket;
 import com.github.tavalin.orvibo.entities.Types.PowerState;
 import com.github.tavalin.orvibo.protocol.Message;
-import com.github.tavalin.orvibo.utils.Utils;
+import com.github.tavalin.orvibo.utils.MessageUtils;
 import com.google.common.primitives.Bytes;
 
 public class CommandFactory {
@@ -26,13 +26,13 @@ public class CommandFactory {
     public static Message createGlobalDiscoveryCommand() {
         Message message = new Message();
         message.setCommand(Command.GLOBAL_DISCOVERY);
-        logger.debug("Constructed message {}", Utils.toPrettyHexString(message.asBytes()));
+        logger.debug("Constructed message {}", MessageUtils.toPrettyHexString(message.asBytes()));
         return message;
     }
 
     public static Message createLocalDiscoveryCommand(OrviboDevice device) {
         final String deviceId = device.getDeviceId();
-        final byte[] deviceIdBytes = Utils.hexStringToByteArray(deviceId);
+        final byte[] deviceIdBytes = MessageUtils.hexStringToByteArray(deviceId);
         final byte[] paddingBytes = new byte[] { Message.PADDING, Message.PADDING, Message.PADDING, Message.PADDING,
                 Message.PADDING, Message.PADDING };
 
@@ -45,7 +45,7 @@ public class CommandFactory {
         message.setDeviceId(deviceId);
         message.setCommandPayload(payload);
 
-        logger.debug("Constructed message {}", Utils.toPrettyHexString(message.asBytes()));
+        logger.debug("Constructed message {}", MessageUtils.toPrettyHexString(message.asBytes()));
 
         return message;
     }
@@ -54,8 +54,8 @@ public class CommandFactory {
         final String deviceId = device.getDeviceId();
         final String reverseId = device.getReverseDeviceId();
 
-        final byte[] deviceIdBytes = Utils.hexStringToByteArray(deviceId);
-        final byte[] reverseIdBytes = Utils.hexStringToByteArray(reverseId);
+        final byte[] deviceIdBytes = MessageUtils.hexStringToByteArray(deviceId);
+        final byte[] reverseIdBytes = MessageUtils.hexStringToByteArray(reverseId);
         final byte[] paddingBytes = new byte[] { Message.PADDING, Message.PADDING, Message.PADDING, Message.PADDING,
                 Message.PADDING, Message.PADDING };
 
@@ -69,14 +69,14 @@ public class CommandFactory {
         message.setDeviceId(deviceId);
         message.setCommandPayload(payload);
 
-        logger.debug("Constructed message {}", Utils.toPrettyHexString(message.asBytes()));
+        logger.debug("Constructed message {}", MessageUtils.toPrettyHexString(message.asBytes()));
         return message;
     }
 
     public static Message createPowerCommand(Socket device, PowerState state) {
         final String deviceId = device.getDeviceId();
 
-        final byte[] deviceIdBytes = Utils.hexStringToByteArray(deviceId);
+        final byte[] deviceIdBytes = MessageUtils.hexStringToByteArray(deviceId);
         final byte[] paddingBytes = new byte[] { Message.PADDING, Message.PADDING, Message.PADDING, Message.PADDING,
                 Message.PADDING, Message.PADDING };
         final byte[] zeroBytes = new byte[] { Message.ZERO, Message.ZERO, Message.ZERO, Message.ZERO };
@@ -95,7 +95,7 @@ public class CommandFactory {
     public static Message createLearnCommand(AllOne device) {
         
         final String deviceId = device.getDeviceId();
-        final byte[] deviceIdBytes = Utils.hexStringToByteArray(deviceId);
+        final byte[] deviceIdBytes = MessageUtils.hexStringToByteArray(deviceId);
         final byte[] paddingBytes = new byte[]{ Message.PADDING, Message.PADDING, Message.PADDING, Message.PADDING,
                 Message.PADDING, Message.PADDING };
         
@@ -115,7 +115,7 @@ public class CommandFactory {
 
         final String deviceId = device.getDeviceId();
 
-        final byte[] deviceIdBytes = Utils.hexStringToByteArray(deviceId);
+        final byte[] deviceIdBytes = MessageUtils.hexStringToByteArray(deviceId);
         final byte[] paddingBytes = new byte[]{ Message.PADDING, Message.PADDING, Message.PADDING, Message.PADDING,
                 Message.PADDING, Message.PADDING };
         final byte[] unknown = new byte[] { 0x65, 0x00, 0x00, 0x00 };

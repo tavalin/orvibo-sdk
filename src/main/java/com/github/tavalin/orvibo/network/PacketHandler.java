@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
 import com.github.tavalin.orvibo.exceptions.OrviboException;
 import com.github.tavalin.orvibo.interfaces.MessageListener;
 import com.github.tavalin.orvibo.protocol.Message;
-import com.github.tavalin.orvibo.utils.Utils;
+import com.github.tavalin.orvibo.utils.MessageUtils;
 import com.google.common.primitives.Bytes;
 
 public class PacketHandler {
@@ -96,7 +96,7 @@ public class PacketHandler {
 
     public synchronized void packetReceived(DatagramPacket packet) throws OrviboException {
             byte[] bytes = Arrays.copyOfRange(packet.getData(), packet.getOffset(), packet.getLength());
-            logger.debug("<-- {} - {}", packet.getAddress(), Utils.toPrettyHexString(bytes));
+            logger.debug("<-- {} - {}", packet.getAddress(), MessageUtils.toPrettyHexString(bytes));
             if (!packetAlreadyReceived(packet)) {
                 previousPackets.add(packet);
                 processPacketBytes(bytes);
@@ -115,7 +115,7 @@ public class PacketHandler {
     private void updateBuffer(byte[] bytes) throws OrviboException {
         if (byteBuffer.position() + bytes.length > byteBuffer.capacity()) {
             clearAndThrowException(
-                    "Buffer full. Discarding current buffer: " + Utils.toPrettyHexString(getByteBuffer()));
+                    "Buffer full. Discarding current buffer: " + MessageUtils.toPrettyHexString(getByteBuffer()));
         } else {
             byteBuffer.put(bytes);
         }
@@ -141,12 +141,12 @@ public class PacketHandler {
                 } else if (bufferPosition > expectedLength) {
                     // somehow we've received more data that expected
                     clearAndThrowException(
-                            "Invalid packet size. Discarding current buffer: " + Utils.toPrettyHexString(bufCopy));
+                            "Invalid packet size. Discarding current buffer: " + MessageUtils.toPrettyHexString(bufCopy));
                 }
             } else {
                 // we've got 4 or more bytes and it doesn't have a valid header
                 clearAndThrowException(
-                        "Invalid packet header. Discarding current buffer: " + Utils.toPrettyHexString(bufCopy));
+                        "Invalid packet header. Discarding current buffer: " + MessageUtils.toPrettyHexString(bufCopy));
             }
         }
     }

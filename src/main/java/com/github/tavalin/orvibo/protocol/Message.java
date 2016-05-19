@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory;
 
 import com.github.tavalin.orvibo.commands.Command;
 import com.github.tavalin.orvibo.exceptions.OrviboException;
-import com.github.tavalin.orvibo.utils.Utils;
+import com.github.tavalin.orvibo.utils.MessageUtils;
 
 public class Message {
 
@@ -86,7 +86,7 @@ public class Message {
             throw new OrviboException(err);
         }
     }
-
+    
     private static short getAsShort(byte[] buffer, int pos1, int pos2) {
         return (short) (((buffer[pos1] & 0xff) << 8) | (buffer[pos2] & 0xff));
     }
@@ -143,10 +143,10 @@ public class Message {
         
         ByteBuffer buffer = ByteBuffer.allocate(2);
         buffer.putShort(getCommand().getCode());
-        sb.append(Utils.toPrettyHexString(buffer.array()));
+        sb.append(MessageUtils.toPrettyHexString(buffer.array()));
         sb.append("\t");
         sb.append("Payload: ");
-        sb.append(Utils.toPrettyHexString(getCommandPayload()));
+        sb.append(MessageUtils.toPrettyHexString(getCommandPayload()));
         return sb.toString();
     }
     

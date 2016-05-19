@@ -16,7 +16,7 @@ import com.github.tavalin.orvibo.commands.CommandFactory;
 import com.github.tavalin.orvibo.devices.AllOne;
 import com.github.tavalin.orvibo.exceptions.OrviboException;
 import com.github.tavalin.orvibo.protocol.Message;
-import com.github.tavalin.orvibo.utils.Utils;
+import com.github.tavalin.orvibo.utils.MessageUtils;
 
 public class InboundMessageTest {
 
@@ -68,7 +68,7 @@ public class InboundMessageTest {
 
     @Test
     public void learnModeConfirm() throws OrviboException {
-        byte[] buffer = Utils.hexStringToByteArray("686400186C73ACCF2372E150202020202020010000000000");
+        byte[] buffer = MessageUtils.hexStringToByteArray("686400186C73ACCF2372E150202020202020010000000000");
         testHandler(buffer);
     }
 
@@ -101,7 +101,7 @@ public class InboundMessageTest {
 
     @Test
     public void learnIrCodeResponse2() throws OrviboException, SocketException, IOException {
-        byte[] buf = Utils.hexStringToByteArray(
+        byte[] buf = MessageUtils.hexStringToByteArray(
                 "686400b26c73ACCF2372E1502020202020200000000000029800000000009800000000000000000088001423751138022002330226021e02220237021f02340225021f02210237022002330225021f028b0634027a0637028c061f028c063402790638028b0620028c06340279063702200234027806380220023302790637028d061e0223023602f305b802230236028d061f02220236028c061e0223023602210233027806360221023402770638020000");
         AllOne device = OrviboClient.getInstance().allOneWithDeviceId("ACCF2372E150");
         device.setLearnPath(Files.createTempFile("ircode", ".tmp"));
@@ -110,7 +110,7 @@ public class InboundMessageTest {
 
     @Test
     public void learnAndEmit() throws IOException, OrviboException {
-        byte[] buf = Utils.hexStringToByteArray(
+        byte[] buf = MessageUtils.hexStringToByteArray(
                 "686400b26c73ACCF2372E1502020202020200000000000029800000000009800000000000000000088001423751138022002330226021e02220237021f02340225021f02210237022002330225021f028b0634027a0637028c061f028c063402790638028b0620028c06340279063702200234027806380220023302790637028d061e0223023602f305b802230236028d061f02220236028c061e0223023602210233027806360221023402770638020000");
         AllOne device = OrviboClient.getInstance().allOneWithDeviceId("ACCF2372E150");
         device.setLearnPath(Files.createTempFile("ircode", ".tmp"));

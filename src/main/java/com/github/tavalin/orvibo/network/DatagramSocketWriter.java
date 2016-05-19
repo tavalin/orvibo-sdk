@@ -5,11 +5,11 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.github.tavalin.orvibo.protocol.Message;
-import com.github.tavalin.orvibo.utils.Utils;
+import com.github.tavalin.orvibo.utils.MessageUtils;
 
 // TODO: Auto-generated Javadoc
 /**
@@ -52,7 +52,7 @@ public class DatagramSocketWriter implements Runnable {
             try {
                 DatagramPacket packet = queue.take();
                 datagramSocket.send(packet);
-                logger.debug("--> {} - {}", packet.getSocketAddress(), Utils.toPrettyHexString(packet.getData()));
+                logger.debug("--> {} - {}", packet.getSocketAddress(), MessageUtils.toPrettyHexString(packet.getData()));
                 Thread.sleep(50); // 20 bursts of packets per second maximum
             } catch (InterruptedException e) {
                 logger.debug("Interrupted.");
