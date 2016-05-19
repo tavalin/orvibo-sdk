@@ -118,7 +118,6 @@ public class InboundMessageTest {
         
         
         Message emit = CommandFactory.createEmitCommand(device, device.getLearnPath());
-        System.out.println(Message.bb2hex(emit.asBytes()));
         
         byte[] learnCode = Arrays.copyOfRange(buf ,26, buf.length);
         byte[] emitCode = Arrays.copyOfRange(emit.asBytes() ,26, emit.asBytes().length);
