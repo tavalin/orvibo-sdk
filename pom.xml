@@ -1,10 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>s20-sdk</groupId>
-	<artifactId>s20-sdk</artifactId>
-	<version>0.0.3-SNAPSHOT</version>
-	<name>Orvibo S20 SDK</name>
+	<groupId>orvibo-sdk</groupId>
+	<artifactId>orvibo-sdk</artifactId>
+	<version>1.1.0-SNAPSHOT</version>
+	<name>Orvibo SDK</name>
 	<build>
 		<sourceDirectory>src</sourceDirectory>
 		<plugins>
@@ -16,10 +17,41 @@
 					<target>1.7</target>
 				</configuration>
 			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<version>2.4.1</version>
+				<configuration>
+					<!-- get all project dependencies -->
+					<descriptorRefs>
+						<descriptorRef>jar-with-dependencies</descriptorRef>
+					</descriptorRefs>
+
+
+				</configuration>
+				<executions>
+					<execution>
+						<id>make-assembly</id>
+						<!-- bind to the packaging phase -->
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 	</build>
+
+
+
 	<properties>
 		<slf4jVersion>1.7.2</slf4jVersion>
+		<collection4Version>4.1</collection4Version>
+		<guavaVersion>19.0</guavaVersion>
+		<junitVersion>4.12</junitVersion>
+		<mockitoVersion>2.0.52-beta</mockitoVersion>
+		<lang3Version>3.0</lang3Version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -27,5 +59,37 @@
 			<artifactId>slf4j-api</artifactId>
 			<version>${slf4jVersion}</version>
 		</dependency>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-collections4</artifactId>
+			<version>${collection4Version}</version>
+
+		</dependency>
+		<dependency>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+			<version>${guavaVersion}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>${junitVersion}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-core</artifactId>
+			<version>${mockitoVersion}</version>
+		</dependency>
+		
+		<dependency>
+	<groupId>org.apache.commons</groupId>
+	<artifactId>commons-lang3</artifactId>
+	<version>${lang3Version}</version>
+</dependency>
+		
+
 	</dependencies>
+
 </project>
