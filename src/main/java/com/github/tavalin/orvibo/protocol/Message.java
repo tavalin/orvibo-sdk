@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 
 import com.github.tavalin.orvibo.commands.Command;
 import com.github.tavalin.orvibo.exceptions.OrviboException;
+import com.github.tavalin.orvibo.utils.Utils;
 
 public class Message {
 
@@ -86,21 +87,6 @@ public class Message {
         }
     }
 
-    /**
-     * Converts a byte array to a hexadecimal string representation
-     * 
-     * @param bb
-     *            the byte array to convert
-     * @return string the string representation
-     */
-    public static String bb2hex(byte[] bb) {
-        StringBuilder result = new StringBuilder();
-        for (int i = 0; i < bb.length; i++) {
-            result.append(String.format("%02X ", bb[i]));
-        }
-        return result.toString();
-    }
-
     private static short getAsShort(byte[] buffer, int pos1, int pos2) {
         return (short) (((buffer[pos1] & 0xff) << 8) | (buffer[pos2] & 0xff));
     }
@@ -157,10 +143,10 @@ public class Message {
         
         ByteBuffer buffer = ByteBuffer.allocate(2);
         buffer.putShort(getCommand().getCode());
-        sb.append(bb2hex(buffer.array()));
+        sb.append(Utils.toPrettyHexString(buffer.array()));
         sb.append("\t");
         sb.append("Payload: ");
-        sb.append(bb2hex(getCommandPayload()));
+        sb.append(Utils.toPrettyHexString(getCommandPayload()));
         return sb.toString();
     }
     

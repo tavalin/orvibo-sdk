@@ -107,7 +107,7 @@ public class InboundMessageTest {
         device.setLearnPath(Files.createTempFile("ircode", ".tmp"));
         testHandler(buf);
     }
-    
+
     @Test
     public void learnAndEmit() throws IOException, OrviboException {
         byte[] buf = Utils.hexStringToByteArray(
@@ -115,12 +115,11 @@ public class InboundMessageTest {
         AllOne device = OrviboClient.getInstance().allOneWithDeviceId("ACCF2372E150");
         device.setLearnPath(Files.createTempFile("ircode", ".tmp"));
         testHandler(buf);
-        
-        
+
         Message emit = CommandFactory.createEmitCommand(device, device.getLearnPath());
-        
-        byte[] learnCode = Arrays.copyOfRange(buf ,26, buf.length);
-        byte[] emitCode = Arrays.copyOfRange(emit.asBytes() ,26, emit.asBytes().length);
+
+        byte[] learnCode = Arrays.copyOfRange(buf, 26, buf.length);
+        byte[] emitCode = Arrays.copyOfRange(emit.asBytes(), 26, emit.asBytes().length);
         assertArrayEquals(learnCode, emitCode);
     }
 
@@ -134,6 +133,5 @@ public class InboundMessageTest {
         AbstractCommandHandler handler = AbstractCommandHandler.getHandler(message.getCommand());
         handler.handle(message);
     }
-    
 
 }

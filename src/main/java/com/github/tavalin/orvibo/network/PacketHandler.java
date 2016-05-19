@@ -96,7 +96,7 @@ public class PacketHandler {
 
     public synchronized void packetReceived(DatagramPacket packet) throws OrviboException {
             byte[] bytes = Arrays.copyOfRange(packet.getData(), packet.getOffset(), packet.getLength());
-            logger.debug("<-- {} - {}", packet.getAddress(), Message.bb2hex(bytes));
+            logger.debug("<-- {} - {}", packet.getAddress(), Utils.toPrettyHexString(bytes));
             if (!packetAlreadyReceived(packet)) {
                 previousPackets.add(packet);
                 processPacketBytes(bytes);

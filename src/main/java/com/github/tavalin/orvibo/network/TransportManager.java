@@ -22,6 +22,7 @@ import com.github.tavalin.orvibo.exceptions.OrviboException;
 import com.github.tavalin.orvibo.interfaces.MessageListener;
 import com.github.tavalin.orvibo.interfaces.PacketListener;
 import com.github.tavalin.orvibo.protocol.Message;
+import com.github.tavalin.orvibo.utils.Utils;
 
 // TODO: Auto-generated Javadoc
 /**
@@ -253,7 +254,7 @@ public class TransportManager implements PacketListener, MessageListener {
                 message.setDeviceId(deviceId);
                 handler.handle(message);
             } catch (OrviboException e) {
-                logger.warn("Unable to handle message {}", Message.bb2hex(message.asBytes()));
+                logger.warn("Unable to handle message {}", Utils.toPrettyHexString(message.asBytes()));
             }
         }
     }
