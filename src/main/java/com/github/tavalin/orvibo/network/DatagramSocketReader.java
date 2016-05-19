@@ -8,12 +8,12 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketTimeoutException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.github.tavalin.orvibo.protocol.Message;
+import com.github.tavalin.orvibo.interfaces.PacketListener;
 
 // TODO: Auto-generated Javadoc
 /**
@@ -21,26 +21,7 @@ import com.github.tavalin.orvibo.protocol.Message;
  */
 public class DatagramSocketReader implements Runnable {
 
-    /**
-     * The listener interface for receiving packet events.
-     * The class that is interested in processing a packet
-     * event implements this interface, and the object created
-     * with that class is registered with a component using the
-     * component's <code>addPacketListener<code> method. When
-     * the packet event occurs, that object's appropriate
-     * method is invoked.
-     *
-     * @see PacketEvent
-     */
-    public interface PacketListener {
-        
-        /**
-         * Packet received.
-         *
-         * @param packet the packet
-         */
-        public void packetReceived(DatagramPacket packet);
-    }
+
 
     /** The logger. */
     private final Logger logger = LoggerFactory.getLogger(DatagramSocketReader.class);
@@ -82,8 +63,6 @@ public class DatagramSocketReader implements Runnable {
             DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
             try {
                 socket.receive(packet);
-                byte[] data = Arrays.copyOfRange(packet.getData(), packet.getOffset(), packet.getLength());
-                logger.debug("<-- {} - {}", packet.getAddress(), Message.bb2hex(data));
                 notifyListeners(packet);
             } catch (SocketTimeoutException e) {
                 logger.debug("Socket timed out");
@@ -105,6 +84,10 @@ public class DatagramSocketReader implements Runnable {
         if (!listeners.contains(listener)) {
             listeners.add(listener);
         }
+    }
+    
+    public void removeListener(PacketListener listener) {
+            listeners.remove(listener);
     }
     
     private void notifyListeners(DatagramPacket packet) {

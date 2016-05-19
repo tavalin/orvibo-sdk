@@ -8,11 +8,9 @@ import java.net.InetSocketAddress;
 import java.net.InterfaceAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
-import java.util.Arrays;
 import java.util.Enumeration;
-import java.util.Iterator;
+import java.util.HashMap;
 
-import org.apache.commons.collections4.queue.CircularFifoQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,14 +19,15 @@ import com.github.tavalin.orvibo.commands.AbstractCommandHandler;
 import com.github.tavalin.orvibo.commands.Command;
 import com.github.tavalin.orvibo.entities.DeviceMapping;
 import com.github.tavalin.orvibo.exceptions.OrviboException;
-import com.github.tavalin.orvibo.network.DatagramSocketReader.PacketListener;
+import com.github.tavalin.orvibo.interfaces.MessageListener;
+import com.github.tavalin.orvibo.interfaces.PacketListener;
 import com.github.tavalin.orvibo.protocol.Message;
 
 // TODO: Auto-generated Javadoc
 /**
  * The Class TransportManager.
  */
-public class TransportManager implements PacketListener {
+public class TransportManager implements PacketListener, MessageListener {
 
     /** The Constant logger. */
     private final Logger logger = LoggerFactory.getLogger(TransportManager.class);
@@ -56,8 +55,6 @@ public class TransportManager implements PacketListener {
     /** The connected. */
     private boolean connected;
 
-    private CircularFifoQueue<DatagramPacket> previousPackets;
-
     /** The Constant BROADCAST_PORT. */
     public final static int BROADCAST_PORT = 10000;
 
@@ -67,9 +64,11 @@ public class TransportManager implements PacketListener {
     /** The Constant LISTEN_PORT. */
     public final static int LISTEN_PORT = 10000;
 
-    public final static int STORED_MESSAGES = 1;
+
 
     public final static int DISCONNECT_TIMEOUT = 30000;
+
+    public HashMap<InetAddress, PacketHandler> packetHandlers = new HashMap<InetAddress, PacketHandler>();
 
     /**
      * Instantiates a new transport manager.
@@ -84,7 +83,7 @@ public class TransportManager implements PacketListener {
         reader = new DatagramSocketReader(udpSocket);
         reader.addListener(this);
         routingTable = new RoutingTable();
-        previousPackets = new CircularFifoQueue<DatagramPacket>(STORED_MESSAGES);
+
     }
 
     /**
@@ -244,24 +243,7 @@ public class TransportManager implements PacketListener {
     }
 
     @Override
-    public synchronized void packetReceived(DatagramPacket packet) {
-        try {
-            InetAddress remoteAddress = packet.getAddress();
-            if (!isLocalAddress(remoteAddress) && !packetAlreadyReceived(packet)) {
-                byte[] bytes = Arrays.copyOfRange(packet.getData(), packet.getOffset(), packet.getLength());
-                logger.debug("Received Message = {}", Message.bb2hex(bytes));
-
-                Message message = new Message(bytes);
-                processMessage(remoteAddress, message);
-                previousPackets.add(packet);
-            }
-
-        } catch (OrviboException ex) {
-            logger.warn("Message is invalid, ignoring.");
-        }
-    }
-
-    private void processMessage(InetAddress remoteAddress, Message message) {
+    public void messageReceived(InetAddress remoteAddress, Message message) {
         Command command = message.getCommand();
         AbstractCommandHandler handler = AbstractCommandHandler.getHandler(command);
         if (handler != null) {
@@ -269,7 +251,6 @@ public class TransportManager implements PacketListener {
                 String deviceId = handler.getDeviceId(message.getCommandPayload());
                 routingTable.updateDeviceMapping(deviceId, new InetSocketAddress(remoteAddress, REMOTE_PORT));
                 message.setDeviceId(deviceId);
-
                 handler.handle(message);
             } catch (OrviboException e) {
                 logger.warn("Unable to handle message {}", Message.bb2hex(message.asBytes()));
@@ -277,14 +258,25 @@ public class TransportManager implements PacketListener {
         }
     }
 
-    private boolean packetAlreadyReceived(DatagramPacket newPacket) {
-        Iterator<DatagramPacket> it = previousPackets.iterator();
-        while (it.hasNext()) {
-            DatagramPacket oldPacket = it.next();
-            if (Arrays.equals(oldPacket.getData(), newPacket.getData())) {
-                return true;
+    @Override
+    public synchronized void packetReceived(DatagramPacket packet) {
+        // who is the packet from?
+        InetAddress remoteAddress = packet.getAddress();
+        if (!isLocalAddress(remoteAddress)) { // No loopback packets
+            PacketHandler handler = packetHandlers.get(remoteAddress);
+            if (handler == null) {
+                handler = new PacketHandler(remoteAddress);
+                handler.addListener(this);
+                packetHandlers.put(remoteAddress, handler);
             }
+            try {
+                handler.packetReceived(packet);
+            } catch (OrviboException e) {
+                logger.error(e.getMessage());
+            }
+        } else {
+            logger.debug("Ignoring loopback packet.");
         }
-        return false;
     }
+
 }
