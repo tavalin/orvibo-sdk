@@ -59,7 +59,7 @@ public class AllOne extends OrviboDevice {
 
     public void setLearnPath(Path learnPath) {
         this.learnPath = learnPath;
-        logger.debug("learn path set to {}", learnPath.toAbsolutePath());
+        logger.debug("Learn path set to {}", learnPath.toAbsolutePath());
     }
 
 }
