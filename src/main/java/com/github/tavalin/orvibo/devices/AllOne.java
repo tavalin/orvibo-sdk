@@ -41,7 +41,14 @@ public class AllOne extends OrviboDevice {
             if (learnPath == null) {
                 throw new IOException("Learn path has not been set. Could not save data.");
             }
-            logger.debug("writing learn data to {}", learnPath.toAbsolutePath());
+
+            Path folder = learnPath.getParent();
+            if (!Files.exists(folder)) {
+                logger.debug("Folder does not exist: {}", folder.toAbsolutePath());
+                Files.createDirectory(folder);
+                logger.debug("Folder created: {}", folder.toAbsolutePath());
+            }
+            logger.debug("Writing learn data to {}", learnPath.toAbsolutePath());
             Files.write(learnPath, data);
         }
     }
@@ -52,7 +59,7 @@ public class AllOne extends OrviboDevice {
 
     public void setLearnPath(Path learnPath) {
         this.learnPath = learnPath;
-        logger.debug("learn path set to {}", learnPath.toAbsolutePath());
+        logger.debug("Learn path set to {}", learnPath.toAbsolutePath());
     }
 
 }
