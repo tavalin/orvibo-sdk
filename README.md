@@ -64,7 +64,7 @@ public class Main implements OrviboDiscoveryListener {
             client.connect();
 	            if (client.isConnected()) {
 	                Socket socket = client.socketWithDeviceID(mac);
-	                socket.findOnNetwork();
+	                socket.find();
 	                Thread.sleep(1000);
 	                socket.subscribe();
 	                Thread.sleep(1000);
