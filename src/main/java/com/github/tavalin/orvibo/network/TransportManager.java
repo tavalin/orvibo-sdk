@@ -83,7 +83,6 @@ public class TransportManager extends IoHandlerAdapter {
 
     public void startServer() throws IOException {
 
-        // NioDatagramAcceptor accepter = new NioDatagramAcceptor();
         accepter.getSessionConfig().setReuseAddress(true);
         accepter.setHandler(this);
         // accepter.setHandler(new ResponseHandler(client));
@@ -108,7 +107,7 @@ public class TransportManager extends IoHandlerAdapter {
     public void sessionOpened(IoSession session) throws Exception {
         logger.debug("Session opened...{}", session.toString());
         synchronized (sessions) {
-            session.getConfig().setUseReadOperation(true);
+            session.getConfig().setUseReadOperation(true); //TODO: is this necessary?
             sessions.put(session.getRemoteAddress(), session);
         }
     }
@@ -125,111 +124,6 @@ public class TransportManager extends IoHandlerAdapter {
     public void exceptionCaught(IoSession session, Throwable cause) {
         logger.error("Error with...{}", session.toString(), cause);
     }
-
-    /*
-     * @Override
-     * public void messageReceived(IoSession session, Object message) {
-     * logger.debug("Message received...{}", session.toString());
-     * 
-     * if (message instanceof GlobalDiscoveryResponse) {
-     * GlobalDiscoveryResponse response = (GlobalDiscoveryResponse) message;
-     * OrviboClient client = OrviboClient.getInstance();
-     * DeviceType type = response.getDeviceType();
-     * if (DeviceType.SOCKET.equals(type)) {
-     * client.socketWithDeviceId(response.getDeviceId());
-     * } else if (DeviceType.ALLONE.equals(type)) {
-     * client.allOneWithDeviceId(response.getDeviceId());
-     * }
-     * } else if(message instanceof LocalDiscoveryResponse) {
-     * 
-     * } else if (message instanceof SubscriptionResponse) {
-     * 
-     * } else if (message instanceof PowerStatusResponse) {
-     * 
-     * } else if (message instanceof SocketDataResponse) {
-     * 
-     * } else if (message instanceof TableDataResponse) {
-     * 
-     * } else if (message instanceof LearnResponse) {
-     * 
-     * } else if (message instanceof EmitResponse) {
-     * 
-     * }
-     * }
-     */
-
-
-
-    /*
-     * private void send(SocketAddress address, final byte[] data) {
-     * 
-     * IoSession session = sessions.get(address);
-     * if (session == null || !session.isConnected()) {
-     * logger.debug("Session not found...");
-     * NioDatagramConnector connector = new NioDatagramConnector();
-     * connector.setHandler(this);
-     * ConnectFuture connectFuture = connector.connect(address);
-     * connectFuture.addListener(new IoFutureListener<ConnectFuture>() {
-     * public void operationComplete(ConnectFuture future) {
-     * if (future.isConnected()) {
-     * IoSession newSession = future.getSession();
-     * sendToSession(newSession, data);
-     * }
-     * }
-     * });
-     * } else {
-     * logger.debug("Session found...");
-     * sendToSession(session, data);
-     * }
-     * }
-     */
-
-    /*
-     * private synchronized void sendToSession(IoSession session, byte[] data) {
-     * IoBuffer buffer = IoBuffer.allocate(data.length);
-     * buffer.put(data);
-     * buffer.flip();
-     * session.write(buffer);
-     * }
-     */
-
-    /*
-     * private void send(SocketAddress address, final OrviboMessage message) {
-     * 
-     * IoSession session = sessions.get(address);
-     * if (session == null || !session.isConnected()) {
-     * logger.debug("Session not found...");
-     * NioDatagramConnector connector = new NioDatagramConnector();
-     * connector.getSessionConfig().setReuseAddress(true);
-     * connector.setHandler(this);
-     * connector.getFilterChain().addLast("protocol", new ProtocolCodecFilter(new MessageCodecFactory()));
-     * // ConnectFuture connectFuture = connector.connect(address);
-     * // connector.getSessionConfig().setReuseAddress(true);
-     * // dcfg.setReuseAddress(true);
-     * ConnectFuture connectFuture = connector.connect(address);
-     * 
-     * connectFuture.addListener(new IoFutureListener<ConnectFuture>() {
-     * public void operationComplete(ConnectFuture future) {
-     * Throwable cause = future.getException();
-     * if (future.isConnected()) {
-     * IoSession newSession = future.getSession();
-     * sendToSession(newSession, message);
-     * }
-     * }
-     * });
-     * 
-     * connectFuture.awaitUninterruptibly();
-     * Throwable t = connectFuture.getException();
-     * session = connectFuture.getSession();
-     * sendToSession(session, message);
-     * } else {
-     * logger.debug("Session found...");
-     * sendToSession(session, message);
-     * }
-     * }
-     */
-
-
 
     /**
      * Checks if is connected.
@@ -290,15 +184,7 @@ public class TransportManager extends IoHandlerAdapter {
     public void testSend(OrviboMessage message, boolean retry) {
         InetSocketAddress address = null;
         try {
-            DeviceMapping mapping = routingTable.getDeviceMappingForDevice(message.getDeviceId());
-            if (mapping == null || message.getDeviceId() == null) {
-                logger.debug("No routing table entry found, sending message as broadcast.");
-                address = NetworkUtils.getBroadcastAddress(REMOTE_PORT);
-            } else {
-                logger.debug("Routing table entry found.");
-                address = mapping.getAddress();
-            }
-
+            address = getAddress(message.getDeviceId());
             IoSession session = getSession(address);
             logger.debug("Sending to {}", session.toString());
             if (session.getService() instanceof IoAcceptor) {
@@ -312,6 +198,19 @@ public class TransportManager extends IoHandlerAdapter {
             logger.error(e.getMessage());
         }
 
+    }
+    
+    private InetSocketAddress getAddress(String deviceId) throws SocketException {
+        InetSocketAddress address;
+        DeviceMapping mapping = routingTable.getDeviceMappingForDevice(deviceId);
+        if (mapping == null || deviceId == null) {
+            logger.debug("No routing table entry found, sending message as broadcast.");
+            address = NetworkUtils.getBroadcastAddress(REMOTE_PORT);
+        } else {
+            logger.debug("Routing table entry found.");
+            address = mapping.getAddress();
+        }
+        return address;
     }
 
     private IoSession getSession(InetSocketAddress address) {
