@@ -46,7 +46,7 @@ public class Socket extends OrviboDevice {
     }
 
     private void setPowerState(PowerState powerState) {
-        PowerStatusRequest request = new PowerStatusRequest();
+        PowerStatusRequest request = new PowerStatusRequest(getDeviceId(), powerState);
         OrviboClient orviboClient = getNetworkContext();
         orviboClient.sendMessage(request, true);
     }

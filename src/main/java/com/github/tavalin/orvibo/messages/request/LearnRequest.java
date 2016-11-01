@@ -2,10 +2,10 @@ package com.github.tavalin.orvibo.messages.request;
 
 import com.github.tavalin.orvibo.messages.OrviboMessage;
 
-public class SubscriptionRequest extends OrviboMessage {
+public class LearnRequest extends OrviboMessage {
 
-	public SubscriptionRequest(String deviceId) {
+	
+	public LearnRequest(String deviceId) {
 		setDeviceId(deviceId);
 	}
-
 }

@@ -12,7 +12,7 @@ public class Types {
 		 /**
  		 * The Enum PowerState.
  		 */
- 		public enum PowerState {
+ 		public enum PowerStateOld {
  			
  			/** The on. */
  			ON((byte)0x01),
@@ -33,12 +33,12 @@ public class Types {
  			 *
  			 * @param text the text
  			 */
- 			PowerState(byte state) {
+ 			PowerStateOld(byte state) {
 					this.state = state;
 				}
  			
  			@SuppressWarnings("unused")
-			private static final Logger logger = LoggerFactory.getLogger(PowerState.class);
+			private static final Logger logger = LoggerFactory.getLogger(PowerStateOld.class);
 
 				/**
 				 * Gets the text.
@@ -56,8 +56,8 @@ public class Types {
 				 * @return the power state
 				 */
 
-			    public static PowerState getPowerState(byte state) {
-			        for (final PowerState powerState : values()) {
+			    public static PowerStateOld getPowerState(byte state) {
+			        for (final PowerStateOld powerState : values()) {
 			            if (powerState.getByte() == state) {
 			                return powerState;
 			            }

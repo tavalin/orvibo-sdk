@@ -72,7 +72,7 @@ public abstract class OrviboDevice {
 	}
 	
 	public void subscribe() {
-        SubscriptionRequest request = new SubscriptionRequest();
+        SubscriptionRequest request = new SubscriptionRequest(getDeviceId());
         OrviboClient orviboClient = getNetworkContext();
         orviboClient.sendMessage(request, true);
 	}
