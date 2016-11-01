@@ -8,8 +8,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.github.tavalin.orvibo.OrviboClient;
-import com.github.tavalin.orvibo.commands.CommandFactory;
-import com.github.tavalin.orvibo.protocol.Message;
+import com.github.tavalin.orvibo.messages.LearnRequest;
+import com.github.tavalin.orvibo.messages.request.EmitRequest;
 
 public class AllOne extends OrviboDevice {
 
@@ -23,16 +23,17 @@ public class AllOne extends OrviboDevice {
     }
 
     public void emit(Path file) throws IOException {
-        Message message = CommandFactory.createEmitCommand(this, file);
+        //TODO: Fix
+        EmitRequest request = new EmitRequest();
         OrviboClient orviboClient = getNetworkContext();
-        orviboClient.sendMessage(message);
+        orviboClient.sendMessage(request, true);
     }
 
     public void learn(Path file) {
-        Message message = CommandFactory.createLearnCommand(this);
-        setLearnPath(file);
+        // TODO: Fix
+        LearnRequest request = new LearnRequest();
         OrviboClient orviboClient = getNetworkContext();
-        orviboClient.sendMessage(message);
+        orviboClient.sendMessage(request, true);
     }
 
     public void saveLearnedData(byte[] data) throws IOException {

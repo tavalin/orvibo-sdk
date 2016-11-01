@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 public class DeviceMapping {
 	
 	/** The device id. */
-	private String deviceID;
+	private String deviceId;
 	
 	/** The address. */
 	private InetSocketAddress address;
@@ -25,8 +25,8 @@ public class DeviceMapping {
 	 *
 	 * @return the device id
 	 */
-	public String getDeviceID() {
-		return deviceID;
+	public String getDeviceId() {
+		return deviceId;
 	}
 	
 	/**
@@ -34,8 +34,8 @@ public class DeviceMapping {
 	 *
 	 * @param deviceID the new device id
 	 */
-	public void setDeviceID(String deviceID) {
-		this.deviceID = deviceID;
+	public void setDeviceId(String deviceID) {
+		this.deviceId = deviceID;
 	}
 	
 	/**

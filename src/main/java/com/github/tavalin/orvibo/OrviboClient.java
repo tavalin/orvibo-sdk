@@ -3,21 +3,22 @@
  */
 package com.github.tavalin.orvibo;
 
+import java.io.IOException;
 import java.net.SocketException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.github.tavalin.orvibo.commands.CommandFactory;
 import com.github.tavalin.orvibo.devices.AllOne;
 import com.github.tavalin.orvibo.devices.OrviboDevice;
 import com.github.tavalin.orvibo.devices.Socket;
+import com.github.tavalin.orvibo.messages.OrviboMessage;
+import com.github.tavalin.orvibo.messages.request.GlobalDiscoveryRequest;
 import com.github.tavalin.orvibo.network.TransportManager;
-import com.github.tavalin.orvibo.protocol.Message;
 
 // TODO: Auto-generated Javadoc
 /**
@@ -36,7 +37,7 @@ public class OrviboClient {
     private TransportManager transportManager;
 
     /** The all devices collection. */
-    private final Map<String, OrviboDevice> allDevices = new HashMap<String, OrviboDevice>();
+    private final Map<String, OrviboDevice> allDevices = new ConcurrentHashMap<String, OrviboDevice>();
 
     /** The Constant logger. */
     private static final Logger logger = LoggerFactory.getLogger(OrviboClient.class);
@@ -72,13 +73,13 @@ public class OrviboClient {
      * Gets the single instance of S20Client.
      *
      * @return single instance of S20Client
-     * @throws SocketException
-     *             the socket exception
+     * @throws IOException
      */
-    public static synchronized OrviboClient getInstance() throws SocketException {
+    public static synchronized OrviboClient getInstance() {
 
         if (instance == null) {
             instance = new OrviboClient();
+
             TransportManager tm = new TransportManager(instance);
             instance.setTransportManager(tm);
             logger.debug("New OrviboClient instance created.");
@@ -93,18 +94,16 @@ public class OrviboClient {
      * @throws SocketException
      *             the socket exception
      */
-    public OrviboClient()  {
-       
-    }
-    
+
+    /*
     public OrviboClient(TransportManager tm) {
         setTransportManager(tm);
-    }
-    
+    }*/
+
     public TransportManager getTransportManager() {
         return transportManager;
     }
-    
+
     public void setTransportManager(TransportManager tm) {
         transportManager = tm;
     }
@@ -120,10 +119,11 @@ public class OrviboClient {
 
     /**
      * Connect.
+     * 
+     * @throws IOException
      */
-    public void connect() {
+    public void connect() throws IOException {
         if (transportManager != null && !transportManager.isConnected()) {
-            logger.debug("Starting connection threads.");
             transportManager.connect();
             logger.debug("Connection complete.");
         }
@@ -133,19 +133,20 @@ public class OrviboClient {
      * Global discovery.
      */
     public void globalDiscovery() {
-        final Message message = CommandFactory.createGlobalDiscoveryCommand();
-        sendMessage(message);
+        final GlobalDiscoveryRequest request = new GlobalDiscoveryRequest();
+        sendMessage(request, false);
     }
 
     /**
      * Send message.
      *
      * @param message the message to send
+     * @param retry TODO
      */
-    public void sendMessage(final Message message) {
-        transportManager.send(message);
+    public void sendMessage(final OrviboMessage message, boolean retry) {
+        transportManager.testSend(message, retry);
     }
-
+    
     /**
      * Socket with device id.
      *
@@ -154,7 +155,7 @@ public class OrviboClient {
      * @return the socket
      */
     public Socket socketWithDeviceId(final String deviceId) {
-        Map<String, OrviboDevice> allDevices = getAllDevices();
+        final Map<String, OrviboDevice> allDevices = getAllDevices();
         OrviboDevice socket = allDevices.get(deviceId);
         if (socket == null) {
             socket = new Socket();
@@ -227,7 +228,7 @@ public class OrviboClient {
      * @param listener
      *            the listener
      */
-    public void removeDeviceDiscoveryListener(OrviboDiscoveryListener listener) {
+    public void removeDeviceDiscoveryListener(final OrviboDiscoveryListener listener) {
         discoveryListeners.remove(listener);
     }
 
@@ -239,7 +240,9 @@ public class OrviboClient {
     public void notifyDiscoveryListeners(final OrviboDevice device) {
         logger.debug("Notifying listeners that a device has been discovered.");
         for (final OrviboDiscoveryListener listener : discoveryListeners) {
-            listener.deviceDiscovered(device);
+            if (listener != null) {
+                listener.deviceDiscovered(device);
+            }
         }
     }
 

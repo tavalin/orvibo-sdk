@@ -1,60 +1,60 @@
 package com.github.tavalin.orvibo.network;
 
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.Inet4Address;
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.InterfaceAddress;
-import java.net.NetworkInterface;
+import java.net.SocketAddress;
 import java.net.SocketException;
-import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
+import org.apache.mina.core.future.ConnectFuture;
+import org.apache.mina.core.service.IoAcceptor;
+import org.apache.mina.core.service.IoHandlerAdapter;
+import org.apache.mina.core.session.IoSession;
+import org.apache.mina.filter.codec.ProtocolCodecFilter;
+import org.apache.mina.filter.firewall.BlacklistFilter;
+import org.apache.mina.transport.socket.nio.NioDatagramAcceptor;
+import org.apache.mina.transport.socket.nio.NioDatagramConnector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.github.rholder.retry.RetryException;
+import com.github.rholder.retry.Retryer;
+import com.github.rholder.retry.RetryerBuilder;
+import com.github.rholder.retry.StopStrategies;
 import com.github.tavalin.orvibo.OrviboClient;
-import com.github.tavalin.orvibo.commands.AbstractCommandHandler;
-import com.github.tavalin.orvibo.commands.Command;
+import com.github.tavalin.orvibo.devices.AllOne;
+import com.github.tavalin.orvibo.devices.DeviceType;
+import com.github.tavalin.orvibo.devices.OrviboDevice;
+import com.github.tavalin.orvibo.devices.Socket;
 import com.github.tavalin.orvibo.entities.DeviceMapping;
-import com.github.tavalin.orvibo.exceptions.OrviboException;
-import com.github.tavalin.orvibo.interfaces.MessageListener;
-import com.github.tavalin.orvibo.interfaces.PacketListener;
-import com.github.tavalin.orvibo.protocol.Message;
-import com.github.tavalin.orvibo.utils.MessageUtils;
+import com.github.tavalin.orvibo.messages.OrviboMessage;
+import com.github.tavalin.orvibo.messages.request.RetryableMessage;
+import com.github.tavalin.orvibo.messages.response.EmitResponse;
+import com.github.tavalin.orvibo.messages.response.GlobalDiscoveryResponse;
+import com.github.tavalin.orvibo.messages.response.LearnResponse;
+import com.github.tavalin.orvibo.messages.response.LocalDiscoveryResponse;
+import com.github.tavalin.orvibo.messages.response.PowerStatusResponse;
+import com.github.tavalin.orvibo.messages.response.SocketDataResponse;
+import com.github.tavalin.orvibo.messages.response.SubscriptionResponse;
+import com.github.tavalin.orvibo.messages.response.TableDataResponse;
+import com.github.tavalin.orvibo.network.mina.MessageCodecFactory;
+import com.google.common.base.Predicates;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class TransportManager.
  */
-public class TransportManager implements PacketListener, MessageListener {
+public class TransportManager extends IoHandlerAdapter {
+
+    private OrviboClient client = null;
 
     /** The Constant logger. */
     private final Logger logger = LoggerFactory.getLogger(TransportManager.class);
 
-    /** The reader. */
-    private DatagramSocketReader reader;
-
-    /** The writer. */
-    private DatagramSocketWriter writer;
-
-    /** The reader thread. */
-    private Thread readerThread;
-
-    /** The writer thread. */
-    private Thread writerThread;
-
-    private RoutingTable routingTable;
-
-    /** The udp socket. */
-    private DatagramSocket udpSocket;
-
-    /** The broadcast address. */
-    private static InetSocketAddress broadcastAddress;
-
-    /** The connected. */
-    private boolean connected;
+    private final RoutingTable routingTable = new RoutingTable();
 
     /** The Constant BROADCAST_PORT. */
     public final static int BROADCAST_PORT = 10000;
@@ -65,11 +65,11 @@ public class TransportManager implements PacketListener, MessageListener {
     /** The Constant LISTEN_PORT. */
     public final static int LISTEN_PORT = 10000;
 
-
-
     public final static int DISCONNECT_TIMEOUT = 30000;
 
-    public HashMap<InetAddress, PacketHandler> packetHandlers = new HashMap<InetAddress, PacketHandler>();
+    private final NioDatagramAcceptor accepter = new NioDatagramAcceptor();
+
+    private final Map<SocketAddress, IoSession> sessions = new HashMap<SocketAddress, IoSession>();
 
     /**
      * Instantiates a new transport manager.
@@ -77,15 +77,159 @@ public class TransportManager implements PacketListener, MessageListener {
      * @param s20Client the s20 client
      * @throws SocketException the socket exception
      */
-    public TransportManager(OrviboClient s20Client) throws SocketException {
-        udpSocket = new DatagramSocket(LISTEN_PORT);
-        udpSocket.setBroadcast(true);
-        writer = new DatagramSocketWriter(udpSocket);
-        reader = new DatagramSocketReader(udpSocket);
-        reader.addListener(this);
-        routingTable = new RoutingTable();
-
+    public TransportManager(OrviboClient s20Client) {
+        client = s20Client;
     }
+
+    public void startServer() throws IOException {
+
+        // NioDatagramAcceptor accepter = new NioDatagramAcceptor();
+        accepter.getSessionConfig().setReuseAddress(true);
+        accepter.setHandler(this);
+        // accepter.setHandler(new ResponseHandler(client));
+        BlacklistFilter filter = new BlacklistFilter();
+        filter.block(InetAddress.getLocalHost());
+        // filter.block(InetAddress.getByName("localhost"));
+        // accepter.getFilterChain().addLast("duplicate", new ConnectionThrottleFilter(10000)); // filters out duplicate
+        // high-level message
+        // objects TODO: Find
+        // appropriate filter
+        accepter.getFilterChain().addLast("loopback", filter); // filters out any data from the loopback address
+        accepter.getFilterChain().addLast("protocol", new ProtocolCodecFilter(new MessageCodecFactory())); // constructs
+                                                                                                           // high-level
+                                                                                                           // message
+                                                                                                           // objects
+                                                                                                           // from byte
+                                                                                                           // array
+        accepter.bind(new InetSocketAddress(LISTEN_PORT));
+    }
+
+    @Override
+    public void sessionOpened(IoSession session) throws Exception {
+        logger.debug("Session opened...{}", session.toString());
+        synchronized (sessions) {
+            session.getConfig().setUseReadOperation(true);
+            sessions.put(session.getRemoteAddress(), session);
+        }
+    }
+
+    @Override
+    public void sessionClosed(IoSession session) throws Exception {
+        logger.debug("Session closed...{}", session.toString());
+        synchronized (sessions) {
+            sessions.remove(session.getRemoteAddress());
+        }
+    }
+    
+    @Override
+    public void exceptionCaught(IoSession session, Throwable cause) {
+        logger.error("Error with...{}", session.toString(), cause);
+    }
+
+    /*
+     * @Override
+     * public void messageReceived(IoSession session, Object message) {
+     * logger.debug("Message received...{}", session.toString());
+     * 
+     * if (message instanceof GlobalDiscoveryResponse) {
+     * GlobalDiscoveryResponse response = (GlobalDiscoveryResponse) message;
+     * OrviboClient client = OrviboClient.getInstance();
+     * DeviceType type = response.getDeviceType();
+     * if (DeviceType.SOCKET.equals(type)) {
+     * client.socketWithDeviceId(response.getDeviceId());
+     * } else if (DeviceType.ALLONE.equals(type)) {
+     * client.allOneWithDeviceId(response.getDeviceId());
+     * }
+     * } else if(message instanceof LocalDiscoveryResponse) {
+     * 
+     * } else if (message instanceof SubscriptionResponse) {
+     * 
+     * } else if (message instanceof PowerStatusResponse) {
+     * 
+     * } else if (message instanceof SocketDataResponse) {
+     * 
+     * } else if (message instanceof TableDataResponse) {
+     * 
+     * } else if (message instanceof LearnResponse) {
+     * 
+     * } else if (message instanceof EmitResponse) {
+     * 
+     * }
+     * }
+     */
+
+
+
+    /*
+     * private void send(SocketAddress address, final byte[] data) {
+     * 
+     * IoSession session = sessions.get(address);
+     * if (session == null || !session.isConnected()) {
+     * logger.debug("Session not found...");
+     * NioDatagramConnector connector = new NioDatagramConnector();
+     * connector.setHandler(this);
+     * ConnectFuture connectFuture = connector.connect(address);
+     * connectFuture.addListener(new IoFutureListener<ConnectFuture>() {
+     * public void operationComplete(ConnectFuture future) {
+     * if (future.isConnected()) {
+     * IoSession newSession = future.getSession();
+     * sendToSession(newSession, data);
+     * }
+     * }
+     * });
+     * } else {
+     * logger.debug("Session found...");
+     * sendToSession(session, data);
+     * }
+     * }
+     */
+
+    /*
+     * private synchronized void sendToSession(IoSession session, byte[] data) {
+     * IoBuffer buffer = IoBuffer.allocate(data.length);
+     * buffer.put(data);
+     * buffer.flip();
+     * session.write(buffer);
+     * }
+     */
+
+    /*
+     * private void send(SocketAddress address, final OrviboMessage message) {
+     * 
+     * IoSession session = sessions.get(address);
+     * if (session == null || !session.isConnected()) {
+     * logger.debug("Session not found...");
+     * NioDatagramConnector connector = new NioDatagramConnector();
+     * connector.getSessionConfig().setReuseAddress(true);
+     * connector.setHandler(this);
+     * connector.getFilterChain().addLast("protocol", new ProtocolCodecFilter(new MessageCodecFactory()));
+     * // ConnectFuture connectFuture = connector.connect(address);
+     * // connector.getSessionConfig().setReuseAddress(true);
+     * // dcfg.setReuseAddress(true);
+     * ConnectFuture connectFuture = connector.connect(address);
+     * 
+     * connectFuture.addListener(new IoFutureListener<ConnectFuture>() {
+     * public void operationComplete(ConnectFuture future) {
+     * Throwable cause = future.getException();
+     * if (future.isConnected()) {
+     * IoSession newSession = future.getSession();
+     * sendToSession(newSession, message);
+     * }
+     * }
+     * });
+     * 
+     * connectFuture.awaitUninterruptibly();
+     * Throwable t = connectFuture.getException();
+     * session = connectFuture.getSession();
+     * sendToSession(session, message);
+     * } else {
+     * logger.debug("Session found...");
+     * sendToSession(session, message);
+     * }
+     * }
+     */
+
+
 
     /**
      * Checks if is connected.
@@ -93,190 +237,139 @@ public class TransportManager implements PacketListener, MessageListener {
      * @return true, if is connected
      */
     public boolean isConnected() {
-        return connected;
+        return accepter.isActive();
     }
 
     /**
      * Connect.
      */
-    public void connect() {
+    public void connect() throws IOException {
         if (!isConnected()) {
-            readerThread = new Thread(reader);
-            writerThread = new Thread(writer);
-            writerThread.start();
-            readerThread.start();
-            connected = true;
+            startServer();
         }
-
     }
 
     /**
      * Disconnect.
      */
     public void disconnect() {
-        try {
-            if (isConnected()) {
-
-                readerThread.interrupt();
-                readerThread.join(DISCONNECT_TIMEOUT);
-
-                writerThread.interrupt();
-                writerThread.join(DISCONNECT_TIMEOUT);
-
+        if (isConnected()) {
+            for (IoSession s : sessions.values()) {
+                s.closeOnFlush();
             }
-        } catch (InterruptedException e) {
-            logger.error(e.getMessage());
-        } finally {
-            udpSocket.close();
-            udpSocket = null;
-            connected = false;
+            accepter.dispose();
         }
-
     }
 
-    /**
-     * Returns the broadcast address that sockets should use.
-     *
-     * @return the broadcast address
-     * @throws SocketException the socket exception
-     */
-    private synchronized InetSocketAddress getBroadcastAddress() throws SocketException {
-        if (broadcastAddress == null) {
-            broadcastAddress = new InetSocketAddress(getFirstActiveBroadcast(), BROADCAST_PORT);
-        }
-        return broadcastAddress;
-    }
-
-    /**
-     * Gets the peer address.
-     * 
-     * @param peerAddress the peer address
-     * @return the peer address
-     */
-    // TODO: Maybe unnecessary
-    public InetSocketAddress getPeerAddress(InetAddress peerAddress) {
-        return new InetSocketAddress(peerAddress, REMOTE_PORT);
-    }
-
-    /**
-     * Gets the first active broadcast.
-     *
-     * @return the first active broadcast
-     * @throws SocketException the socket exception
-     */
-    private InetAddress getFirstActiveBroadcast() throws SocketException {
-        NetworkInterface iface = getFirstActiveIPv4Interface();
-        if (iface != null) {
-            for (InterfaceAddress ifaceAddr : iface.getInterfaceAddresses()) {
-                InetAddress addr = ifaceAddr.getAddress();
-                if (addr instanceof Inet4Address) {
-                    return ifaceAddr.getBroadcast();
-                }
+    @Override
+    public void messageReceived(IoSession session, Object message) {
+        logger.debug("Message received...{}", session.toString());
+        if (message instanceof OrviboMessage) {
+            String deviceId = ((OrviboMessage) message).getDeviceId();
+            routingTable.updateDeviceMapping(deviceId, (InetSocketAddress) session.getRemoteAddress());
+            if (message instanceof GlobalDiscoveryResponse) {
+                handleGlobalDiscoveryResponse((GlobalDiscoveryResponse) message);
+            } else if (message instanceof LocalDiscoveryResponse) {
+                handleLocalDiscoveryResponse((LocalDiscoveryResponse) message);
+            } else if (message instanceof SubscriptionResponse) {
+                handleSubscriptionResponse((SubscriptionResponse) message);
+            } else if (message instanceof PowerStatusResponse) {
+                // TODO: implement
+            } else if (message instanceof SocketDataResponse) {
+                // TODO: implement
+            } else if (message instanceof TableDataResponse) {
+                // TODO: implement
+            } else if (message instanceof LearnResponse) {
+                // TODO: implement
+            } else if (message instanceof EmitResponse) {
+                // TODO: implement
             }
         }
-        return null;
     }
 
-    /**
-     * Gets the first active i pv4 interface.
-     *
-     * @return the first active i pv4 interface
-     * @throws SocketException the socket exception
-     */
-    private NetworkInterface getFirstActiveIPv4Interface() throws SocketException {
-        Enumeration<NetworkInterface> networkInterfaces = NetworkInterface.getNetworkInterfaces();
-        while (networkInterfaces.hasMoreElements()) {
-            NetworkInterface iface = networkInterfaces.nextElement();
-            if (iface.isUp() && !iface.isLoopback()) {
-                for (InterfaceAddress ifaceAddr : iface.getInterfaceAddresses()) {
-                    if (ifaceAddr.getAddress() instanceof Inet4Address) {
-                        return iface;
-                    }
-                }
-            }
-        }
-        logger.debug("Unable to retrieve active network interface.");
-        return null;
-    }
-
-    /**
-     * Checks if is local address.
-     *
-     * @param address the address
-     * @return true, if is local address
-     */
-    private boolean isLocalAddress(InetAddress address) {
-        try {
-            Enumeration<NetworkInterface> networkInterfaces = NetworkInterface.getNetworkInterfaces();
-            while (networkInterfaces.hasMoreElements()) {
-                NetworkInterface iface = networkInterfaces.nextElement();
-                if (iface.isUp()) {
-                    for (InterfaceAddress ifaceAddr : iface.getInterfaceAddresses()) {
-                        if (ifaceAddr.getAddress().equals(address)) {
-                            return true;
-                        }
-                    }
-                }
-            }
-        } catch (SocketException ex) {
-            logger.error("Error while determining if address is local");
-        }
-        return false;
-    }
-
-    public void send(Message message) {
+    public void testSend(OrviboMessage message, boolean retry) {
         InetSocketAddress address = null;
         try {
             DeviceMapping mapping = routingTable.getDeviceMappingForDevice(message.getDeviceId());
             if (mapping == null || message.getDeviceId() == null) {
                 logger.debug("No routing table entry found, sending message as broadcast.");
-                address = getBroadcastAddress();
+                address = NetworkUtils.getBroadcastAddress(REMOTE_PORT);
             } else {
                 logger.debug("Routing table entry found.");
                 address = mapping.getAddress();
             }
-            byte[] payload = message.asBytes();
-            DatagramPacket packet = new DatagramPacket(payload, payload.length, address);
-            writer.send(packet);
-        } catch (SocketException e) {
+
+            IoSession session = getSession(address);
+            logger.debug("Sending to {}", session.toString());
+            if (session.getService() instanceof IoAcceptor) {
+                // if (retry) {
+                sendWithRetry(session, message);
+            } else {
+                session.write(message);
+            }
+
+        } catch (ExecutionException | RetryException | SocketException e) {
             logger.error(e.getMessage());
         }
+
     }
 
-    @Override
-    public void messageReceived(InetAddress remoteAddress, Message message) {
-        Command command = message.getCommand();
-        AbstractCommandHandler handler = AbstractCommandHandler.getHandler(command);
-        if (handler != null) {
-            try {
-                String deviceId = handler.getDeviceId(message.getCommandPayload());
-                routingTable.updateDeviceMapping(deviceId, new InetSocketAddress(remoteAddress, REMOTE_PORT));
-                message.setDeviceId(deviceId);
-                handler.handle(message);
-            } catch (OrviboException e) {
-                logger.warn("Unable to handle message {}", MessageUtils.toPrettyHexString(message.asBytes()));
+    private IoSession getSession(InetSocketAddress address) {
+        Map<Long, IoSession> managedSessions = accepter.getManagedSessions();
+        for (IoSession thisSession : managedSessions.values()) {
+            if (thisSession.getRemoteAddress().equals(address)) {
+                return thisSession;
+            }
+        }
+        // else create connection
+        NioDatagramConnector connector = new NioDatagramConnector();
+        connector.getSessionConfig().setUseReadOperation(true);
+        // connector.setHandler();
+        connector.getFilterChain().addLast("protocol", new ProtocolCodecFilter(new MessageCodecFactory()));
+        ConnectFuture connectFuture = connector.connect(address);
+        connectFuture.awaitUninterruptibly();
+        return connectFuture.getSession();
+    }
+
+    public void sendWithRetry(IoSession session, OrviboMessage message) throws ExecutionException, RetryException {
+
+        RetryableMessage r = new RetryableMessage(session, message, 1000, TimeUnit.MILLISECONDS);
+        Retryer<Boolean> retryer = RetryerBuilder.<Boolean> newBuilder().retryIfResult(Predicates.<Boolean> isNull())
+                .retryIfResult(Predicates.<Boolean> equalTo(Boolean.FALSE))
+                .withStopStrategy(StopStrategies.stopAfterAttempt(10)).build();
+        retryer.call(r);
+    }
+
+    private void handleSubscriptionResponse(SubscriptionResponse message) {
+        OrviboDevice device = client.getAllDevices().get(message.getDeviceId());
+        if (device != null) {
+            if (device instanceof Socket) {
+                Socket socket = (Socket) device;
+                socket.powerDidChangeTo(message.getPowerState());
+            } else if (device instanceof AllOne) {
+                // nothing to do...
             }
         }
     }
 
-    @Override
-    public synchronized void packetReceived(DatagramPacket packet) {
-        // who is the packet from?
-        InetAddress remoteAddress = packet.getAddress();
-        if (!isLocalAddress(remoteAddress)) { // No loopback packets
-            PacketHandler handler = packetHandlers.get(remoteAddress);
-            if (handler == null) {
-                handler = new PacketHandler(remoteAddress);
-                handler.addListener(this);
-                packetHandlers.put(remoteAddress, handler);
+    private void handleLocalDiscoveryResponse(LocalDiscoveryResponse message) {
+        OrviboDevice device = client.getAllDevices().get(message.getDeviceId());
+        if (device != null) {
+            if (device instanceof Socket) {
+                Socket socket = (Socket) device;
+                socket.powerDidChangeTo(message.getPowerState());
+            } else if (device instanceof AllOne) {
+                // nothing to do...
             }
-            try {
-                handler.packetReceived(packet);
-            } catch (OrviboException e) {
-                logger.error(e.getMessage());
-            }
-        } else {
-            logger.debug("Ignoring loopback packet.");
+        }
+    }
+
+    private void handleGlobalDiscoveryResponse(GlobalDiscoveryResponse response) {
+        DeviceType type = response.getDeviceType();
+        if (DeviceType.SOCKET.equals(type)) {
+            client.socketWithDeviceId(response.getDeviceId());
+        } else if (DeviceType.ALLONE.equals(type)) {
+            client.allOneWithDeviceId(response.getDeviceId());
         }
     }
 

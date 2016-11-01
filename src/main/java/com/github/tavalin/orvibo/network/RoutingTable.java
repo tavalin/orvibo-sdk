@@ -47,7 +47,7 @@ public class RoutingTable {
         }
 
         logger.debug("Updating device mapping details");
-        deviceMapping.setDeviceID(deviceId);
+        deviceMapping.setDeviceId(deviceId);
         deviceMapping.setAddress(address);
     }
     

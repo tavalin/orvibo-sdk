@@ -3,9 +3,7 @@ package com.github.tavalin.orvibo.devices;
 import java.util.ArrayList;
 
 import com.github.tavalin.orvibo.OrviboClient;
-import com.github.tavalin.orvibo.commands.CommandFactory;
-import com.github.tavalin.orvibo.entities.Types.PowerState;
-import com.github.tavalin.orvibo.protocol.Message;
+import com.github.tavalin.orvibo.messages.request.PowerStatusRequest;
 
 public class Socket extends OrviboDevice {
 
@@ -48,9 +46,9 @@ public class Socket extends OrviboDevice {
     }
 
     private void setPowerState(PowerState powerState) {
-        Message message = CommandFactory.createPowerCommand(this, powerState);
+        PowerStatusRequest request = new PowerStatusRequest();
         OrviboClient orviboClient = getNetworkContext();
-        orviboClient.sendMessage(message);
+        orviboClient.sendMessage(request, true);
     }
 
     public PowerState getPowerState() {

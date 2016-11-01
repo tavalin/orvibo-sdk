@@ -1,16 +1,22 @@
 package com.github.tavalin.orvibo.devices;
 
 import com.github.tavalin.orvibo.OrviboClient;
-import com.github.tavalin.orvibo.commands.CommandFactory;
-import com.github.tavalin.orvibo.protocol.Message;
+import com.github.tavalin.orvibo.exceptions.OrviboException;
+import com.github.tavalin.orvibo.messages.request.LocalDiscoveryRequest;
+import com.github.tavalin.orvibo.messages.request.SubscriptionRequest;
 
 public abstract class OrviboDevice {
+    
+    final static int MAX_PASSWORD_LENGTH = 6;
+    final static int MAX_LABEL_LENGTH = 12;
+    final static String DEFAULT_PASSWORD = "888888";
 	
 	private String deviceId;
 	private String reverseDeviceId;
 	private OrviboClient orviboClient;
 	private String label;
 	private DeviceType deviceType;
+	private String password = DEFAULT_PASSWORD;
 	
 	public OrviboDevice(DeviceType type) {
 	    setDeviceType(type);
@@ -60,15 +66,15 @@ public abstract class OrviboDevice {
     }
 	
 	public void find() {
-		Message message = CommandFactory.createLocalDiscoveryCommand(this);
+	    LocalDiscoveryRequest request = new LocalDiscoveryRequest(getDeviceId());
         OrviboClient orviboClient = getNetworkContext();
-        orviboClient.sendMessage(message);
+        orviboClient.sendMessage(request, true);
 	}
 	
 	public void subscribe() {
-		Message message = CommandFactory.createSubscribeCommand(this);
+        SubscriptionRequest request = new SubscriptionRequest();
         OrviboClient orviboClient = getNetworkContext();
-        orviboClient.sendMessage(message);
+        orviboClient.sendMessage(request, true);
 	}
 
 
@@ -79,6 +85,19 @@ public abstract class OrviboDevice {
 
     public void setDeviceType(DeviceType deviceType) {
         this.deviceType = deviceType;
+    }
+
+
+    public String getPassword() {
+        return password;
+    }
+
+
+    public void setPassword(String password) throws OrviboException {
+        if (password.length() > MAX_PASSWORD_LENGTH) {
+            throw new OrviboException("Password cannot be longer than " + MAX_PASSWORD_LENGTH);
+        }
+        this.password = password;
     }
     
 

@@ -16,9 +16,14 @@ public class Types {
  			
  			/** The on. */
  			ON((byte)0x01),
+ 			
+ 			UNKNOWN((byte)0xFF),
 			 
  			/** The off. */
  			OFF((byte)0x00);
+ 		    
+ 		    
+ 		    
 			 
 			 /** The text. */
  			private byte state;
