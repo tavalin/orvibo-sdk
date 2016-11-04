@@ -1,8 +1,8 @@
 package com.github.tavalin.orvibo.messages.request;
 
-import com.github.tavalin.orvibo.messages.OrviboMessage;
+import com.github.tavalin.orvibo.messages.OrviboRequest;
 
-public class GlobalDiscoveryRequest extends OrviboMessage {
+public class GlobalDiscoveryRequest extends OrviboRequest {
 
 
 }

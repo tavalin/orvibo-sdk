@@ -1,8 +1,8 @@
 package com.github.tavalin.orvibo.messages.request;
 
-import com.github.tavalin.orvibo.messages.OrviboMessage;
+import com.github.tavalin.orvibo.messages.OrviboRequest;
 
-public class LocalDiscoveryRequest extends OrviboMessage {
+public class LocalDiscoveryRequest extends OrviboRequest {
     
     public LocalDiscoveryRequest(String deviceId) {
         setDeviceId(deviceId);

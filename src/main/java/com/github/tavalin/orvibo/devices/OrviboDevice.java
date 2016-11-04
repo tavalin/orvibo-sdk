@@ -2,6 +2,7 @@ package com.github.tavalin.orvibo.devices;
 
 import com.github.tavalin.orvibo.OrviboClient;
 import com.github.tavalin.orvibo.exceptions.OrviboException;
+import com.github.tavalin.orvibo.messages.MessageUtils;
 import com.github.tavalin.orvibo.messages.request.LocalDiscoveryRequest;
 import com.github.tavalin.orvibo.messages.request.SubscriptionRequest;
 
@@ -22,10 +23,9 @@ public abstract class OrviboDevice {
 	    setDeviceType(type);
 	}
 	
-	
     public void setDeviceId(String deviceId) {
         this.deviceId = deviceId;
-        setReverseDeviceID(deviceId);
+        setReverseDeviceId(deviceId);
     }
 
     public String getDeviceId() {
@@ -36,16 +36,8 @@ public abstract class OrviboDevice {
         return reverseDeviceId;
     }
 
-    private void setReverseDeviceID(String idToReverse) {
-
-        // TODO: is there a cleaner way to do this?
-        String[] pairs = idToReverse.split("(?<=\\G..)");
-        StringBuilder sb = new StringBuilder();
-
-        for (int i = pairs.length - 1; i >= 0; i--) {
-            sb.append(pairs[i]);
-        }
-        reverseDeviceId = sb.toString();
+    private void setReverseDeviceId(String idToReverse) {
+        reverseDeviceId = MessageUtils.getReverseDeviceId(idToReverse);
     }
     
     public String getLabel() {

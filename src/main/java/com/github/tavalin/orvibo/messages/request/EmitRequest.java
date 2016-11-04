@@ -1,11 +1,23 @@
 package com.github.tavalin.orvibo.messages.request;
 
-import com.github.tavalin.orvibo.messages.OrviboMessage;
+import com.github.tavalin.orvibo.messages.OrviboRequest;
 
-public class EmitRequest extends OrviboMessage {
+public class EmitRequest extends OrviboRequest {
+    
+    private String code;
 
-	public EmitRequest(String deviceId, Object object) {
+	public EmitRequest(String deviceId, String code) {
 		setDeviceId(deviceId);
+		setCode(code);
 	}
+  
+  public void setCode(String code) {
+      this.code = code;
+  }
+  
+  public String getCode() {
+      return code;
+  }
+  
 
 }

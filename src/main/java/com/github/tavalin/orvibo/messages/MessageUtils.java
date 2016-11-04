@@ -8,8 +8,12 @@ import javax.xml.bind.DatatypeConverter;
 import com.github.tavalin.orvibo.devices.DeviceType;
 import com.github.tavalin.orvibo.devices.PowerState;
 import com.github.tavalin.orvibo.exceptions.OrviboException;
+import com.github.tavalin.orvibo.messages.request.EmitRequest;
 import com.github.tavalin.orvibo.messages.request.GlobalDiscoveryRequest;
+import com.github.tavalin.orvibo.messages.request.LearnRequest;
 import com.github.tavalin.orvibo.messages.request.LocalDiscoveryRequest;
+import com.github.tavalin.orvibo.messages.request.PowerStatusRequest;
+import com.github.tavalin.orvibo.messages.request.SubscriptionRequest;
 import com.github.tavalin.orvibo.messages.response.GlobalDiscoveryResponse;
 import com.github.tavalin.orvibo.messages.response.LocalDiscoveryResponse;
 import com.github.tavalin.orvibo.network.mina.Command;
@@ -24,11 +28,11 @@ public class MessageUtils {
     private static final byte[] IRD = new byte[] { 0x49, 0x52, 0x44 };
 
     public static OrviboMessage createMessage(Command cmd, byte[] data, int length) throws OrviboException {
-        
+
         String deviceId;
         DeviceType deviceType;
         PowerState powerState;
-        
+
         switch (cmd) {
             case GLOBAL_DISCOVERY:
                 GlobalDiscoveryResponse global = new GlobalDiscoveryResponse();
@@ -46,7 +50,7 @@ public class MessageUtils {
                 message.setDeviceId(deviceId);
                 message.setPowerState(powerState);
                 return message;
-        
+
             default:
         }
         /*
@@ -123,29 +127,104 @@ public class MessageUtils {
         }
     }
 
-    public static byte[] createBytes(OrviboMessage message) {
+    public static byte[] createBytes(OrviboMessage message) throws OrviboException {
         ByteBuffer buf = ByteBuffer.allocate(1024);
         if (message instanceof GlobalDiscoveryRequest) {
+           
+            short messageLength = 6;
             buf.putShort((short) MAGIC);
-            buf.putShort((short) 6);
+            buf.putShort(messageLength);
             buf.putShort(Command.GLOBAL_DISCOVERY.getCode());
             buf.flip();
-            // return new byte[] { 0x68, 0x64, 0x00, 0x06, 0x71, 0x61 };
-            return Arrays.copyOfRange(buf.array(), 0, buf.limit());
         } else if (message instanceof LocalDiscoveryRequest) {
             // 68 64 00 12 71 67 ac cf 23 24 19 c0 20 20 20 20 20 20
+            short messageLength = 18;
             buf.putShort((short) MAGIC);
-            buf.putShort((short) 18);
+            buf.putShort(messageLength);
             buf.putShort(Command.LOCAL_DISCOVERY.getCode());
             String deviceId = message.getDeviceId();
             buf.put(hexStringToByteArray(deviceId));
-            buf.putShort((short) 0x2020);
-            buf.putShort((short) 0x2020);
-            buf.putShort((short) 0x2020);
+            buf.put(new byte[] { 0x20, 0x20, 0x20, 0x20, 0x20, 0x20 });
             buf.flip();
-            return Arrays.copyOfRange(buf.array(), 0, buf.limit());
+        } else if (message instanceof SubscriptionRequest) {
+            short messageLength = 30;
+            buf.putShort((short) MAGIC);
+            buf.putShort(messageLength);
+            buf.putShort(Command.SUBSCRIBE.getCode());
+            String deviceId = message.getDeviceId();
+            buf.put(hexStringToByteArray(deviceId));
+            buf.put(new byte[] { 0x20, 0x20, 0x20, 0x20, 0x20, 0x20 });
+            String reverseId = message.getReverseId();
+            buf.put(hexStringToByteArray(reverseId));
+            buf.put(new byte[] { 0x20, 0x20, 0x20, 0x20, 0x20, 0x20 });
+            buf.flip();
+        } else if (message instanceof PowerStatusRequest) {
+            short messageLength = 23;
+            buf.putShort((short) MAGIC);
+            buf.putShort(messageLength);
+            buf.putShort(Command.POWER_REQUEST.getCode());
+            String deviceId = message.getDeviceId();
+            buf.put(hexStringToByteArray(deviceId));
+            buf.put(new byte[] { 0x20, 0x20, 0x20, 0x20, 0x20, 0x20 });
+            buf.put(new byte[] { 0x00, 0x00, 0x00, 0x00 });
+            if (PowerState.ON.equals(message.getPowerState())) {
+                buf.put((byte) 1);
+            } else if (PowerState.OFF.equals(message.getPowerState())) {
+                buf.put((byte) 0);
+            } else {
+                throw new OrviboException("Could not set power state of " + message.getPowerState());
+            }
+            buf.flip();
+        } else if (message instanceof LearnRequest) {
+            short messageLength = 24;
+            buf.putShort((short) MAGIC);
+            buf.putShort(messageLength);
+            buf.putShort(Command.LEARN.getCode());
+            String deviceId = message.getDeviceId();
+            buf.put(hexStringToByteArray(deviceId));
+            buf.put(new byte[] { 0x20, 0x20, 0x20, 0x20, 0x20, 0x20 });
+            buf.put(new byte[] { 0x01, 0x00, 0x00, 0x00, 0x00, 0x00 }); 
+            buf.flip();
+        } else if (message instanceof EmitRequest) {
+            /*
+            0x68, 0x64, 0x00, 0x1D, 0x69, 0x63, (byte) 0xFF, (byte) 0xAA,
+            (byte) 0xBB, (byte) 0xCC, (byte) 0xDD, (byte) 0xEE, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x65, 0x00,
+            0x00, 0x00, 0x73, 0x00, 0x00, 0x03, 0x41, 0x42, 0x43
+            */
+            buf.putShort((short) MAGIC);
+            buf.putShort((short)0);
+            buf.putShort(Command.EMIT.getCode());
+            
+            
+            String deviceId = message.getDeviceId();
+            buf.put(hexStringToByteArray(deviceId));
+            buf.put(new byte[] { 0x20, 0x20, 0x20, 0x20, 0x20, 0x20 });
+            buf.put( new byte[] { 0x65, 0x00, 0x00, 0x00 });
+            buf.put( new byte[] { randomByte(), randomByte() });
+            // ir code length
+            
+            // ir code
+            
+        } else {
+            throw new OrviboException("Could not message type of " + message.getClass());
         }
-        return null;
+        return Arrays.copyOfRange(buf.array(), 0, buf.limit());
+    }
+    
+    private static byte randomByte() {
+        return (byte) (256 * Math.random());
+}
+
+    public static String getReverseDeviceId(String idToReverse) {
+
+        // TODO: is there a cleaner way to do this?
+        String[] pairs = idToReverse.split("(?<=\\G..)");
+        StringBuilder sb = new StringBuilder();
+
+        for (int i = pairs.length - 1; i >= 0; i--) {
+            sb.append(pairs[i]);
+        }
+        return sb.toString();
     }
 
     ///
