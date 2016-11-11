@@ -4,18 +4,18 @@ import com.github.tavalin.orvibo.messages.OrviboRequest;
 
 public class EmitRequest extends OrviboRequest {
     
-    private String code;
+    private byte[] code;
 
-	public EmitRequest(String deviceId, String code) {
+	public EmitRequest(String deviceId, byte[] code) {
 		setDeviceId(deviceId);
 		setCode(code);
 	}
   
-  public void setCode(String code) {
+  public void setCode(byte[] code) {
       this.code = code;
   }
   
-  public String getCode() {
+  public byte[] getCode() {
       return code;
   }
   

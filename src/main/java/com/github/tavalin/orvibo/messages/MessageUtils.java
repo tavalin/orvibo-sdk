@@ -201,9 +201,22 @@ public class MessageUtils {
             buf.put(new byte[] { 0x20, 0x20, 0x20, 0x20, 0x20, 0x20 });
             buf.put( new byte[] { 0x65, 0x00, 0x00, 0x00 });
             buf.put( new byte[] { randomByte(), randomByte() });
-            // ir code length
+
             
             // ir code
+            byte[] irCode =((EmitRequest) message).getCode();
+            
+            // ir code length
+            int irLen = irCode.length;
+            
+            buf.putShort((short)irLen);
+            buf.put(irCode);
+            
+            buf.flip();
+            
+            int len = buf.limit();
+            buf.putShort(2, (short)len);
+                    
             
         } else {
             throw new OrviboException("Could not message type of " + message.getClass());

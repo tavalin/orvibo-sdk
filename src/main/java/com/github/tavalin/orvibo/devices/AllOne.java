@@ -8,9 +8,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.github.tavalin.orvibo.OrviboClient;
-import com.github.tavalin.orvibo.messages.request.LearnRequest;
-import com.github.tavalin.orvibo.messages.MessageUtils;
 import com.github.tavalin.orvibo.messages.request.EmitRequest;
+import com.github.tavalin.orvibo.messages.request.LearnRequest;
 
 public class AllOne extends OrviboDevice {
 
@@ -25,8 +24,7 @@ public class AllOne extends OrviboDevice {
 
     public void emit(Path file) throws IOException {
         byte[] bytes = Files.readAllBytes(file);
-        String hexCode = MessageUtils.toHexString(bytes);
-        EmitRequest request = new EmitRequest(getDeviceId(), hexCode);
+        EmitRequest request = new EmitRequest(getDeviceId(), bytes);
         OrviboClient orviboClient = getNetworkContext();
         orviboClient.sendMessage(request, true);
     }

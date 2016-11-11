@@ -119,8 +119,7 @@ public class InboundMessageTest {
         testHandler(buf);
 
         byte[] bytes = Files.readAllBytes(device.getLearnPath());
-        String hexCode = MessageUtils.toHexString(bytes);
-        EmitRequest request = new EmitRequest(device.getDeviceId(), hexCode);
+        EmitRequest request = new EmitRequest(device.getDeviceId(), bytes);
         //Message emit = CommandFactory.createEmitCommand(device, device.getLearnPath());
 
         //byte[] learnCode = Arrays.copyOfRange(buf, 26, buf.length);

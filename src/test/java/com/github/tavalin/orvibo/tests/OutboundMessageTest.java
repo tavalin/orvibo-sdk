@@ -113,13 +113,11 @@ public class OutboundMessageTest {
     @Test
     public void emit() throws OrviboException {
         
-        /*
+        
         Path testFile = Paths.get("src/test/resources/test.ir");
         try {
             byte[] hexBytes = Files.readAllBytes(testFile);
-            String hexCode = new String(hexBytes);
-            byte[] rawBytes = MessageUtils.hexStringToByteArray(hexCode);
-            EmitRequest emit = new EmitRequest(allone.getDeviceId(), hexCode); //TODO: fix
+            EmitRequest emit = new EmitRequest(allone.getDeviceId(), hexBytes);
 
             byte[] expectedEmit = new byte[] { 0x68, 0x64, 0x00, 0x1D, 0x69, 0x63, (byte) 0xFF, (byte) 0xAA,
                     (byte) 0xBB, (byte) 0xCC, (byte) 0xDD, (byte) 0xEE, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x65, 0x00,
@@ -136,7 +134,8 @@ public class OutboundMessageTest {
         } catch (IOException e) {
             fail("Could not open test file " + testFile.getFileName());
         }
-        */
+        
         
     }
 }
+
