@@ -11,6 +11,7 @@ public abstract class OrviboDevice {
 	private OrviboClient orviboClient;
 	private String label;
 	private DeviceType deviceType;
+    protected boolean lastOperationSuccess;
 	
 	public OrviboDevice(DeviceType type) {
 	    setDeviceType(type);
@@ -80,9 +81,13 @@ public abstract class OrviboDevice {
     public void setDeviceType(DeviceType deviceType) {
         this.deviceType = deviceType;
     }
-    
 
 
+    public boolean isLastOperationSuccess() {
+        return lastOperationSuccess;
+    }
 
-
+    public void setLastOperationSuccess(boolean lastOperationSuccess) {
+        this.lastOperationSuccess = lastOperationSuccess;
+    }
 }

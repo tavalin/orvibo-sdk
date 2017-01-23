@@ -176,9 +176,12 @@ public abstract class AbstractCommandHandler  {
      * @throws OrviboException 
      */
     public void handle(Message message) throws OrviboException {
+        OrviboDevice device = getDevice(message.getDeviceId());
         if(isValidResponse(message)) {
+            if (device!=null) device.setLastOperationSuccess(true);
             handleInternal(message);
         } else {
+            if (device!=null) device.setLastOperationSuccess(false);
             handleInvalidResponse(message);
         }
     }

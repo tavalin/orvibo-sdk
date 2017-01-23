@@ -1,5 +1,7 @@
 package com.github.tavalin.orvibo.commands;
 
+import com.github.tavalin.orvibo.devices.AllOne;
+import com.github.tavalin.orvibo.devices.OrviboDevice;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,6 +33,11 @@ public class EmitHandler extends AbstractCommandHandler {
 
     @Override
     protected void handleInternal(Message message) {
+        byte[] payload = message.getCommandPayload();
+        String deviceId = getDeviceId(payload);
+        OrviboDevice device = getDevice(deviceId);
+        AllOne allone = (AllOne) device;
+        allone.setStatus(AllOne.IDLE);
         logger.debug("Handling emitting response");
     }
 }

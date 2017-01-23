@@ -23,7 +23,7 @@ public class PacketHandler {
 
     private ByteBuffer byteBuffer = null;
     private static final byte[] HEADER = new byte[] { 0x68, 0x64 };
-    private final static int MAX_SIZE = 0xFF;
+    private final static int MAX_SIZE = 1024;
     /** The listeners. */
     private List<MessageListener> listeners;
     private InetAddress remote;
@@ -95,8 +95,9 @@ public class PacketHandler {
     }
 
     public synchronized void packetReceived(DatagramPacket packet) throws OrviboException {
-            byte[] bytes = Arrays.copyOfRange(packet.getData(), packet.getOffset(), packet.getLength());
-            logger.debug("<-- {} - {}", packet.getAddress(), MessageUtils.toPrettyHexString(bytes));
+        byte[] bytes = Arrays.copyOfRange(packet.getData(), packet.getOffset(), packet.getLength());
+        //System.out.println("<-- "+packet.getAddress()+" - {"+MessageUtils.toPrettyHexString(bytes)+"}");
+        logger.debug("<-- {} - {}", packet.getAddress(), MessageUtils.toPrettyHexString(bytes));
             if (!packetAlreadyReceived(packet)) {
                 previousPackets.add(packet);
                 processPacketBytes(bytes);
@@ -129,19 +130,13 @@ public class PacketHandler {
             if (bufferContains(HEADER)) {
                 int expectedLength = getExpectedLength();
                 if (bufferPosition < expectedLength) {
-                    // we haven't yet received what we expected so wait for next
-                    // packet
                     logger.debug("Waiting for further packets.");
                     return;
-                } else if (bufferPosition == expectedLength) {
+                } else {
                     logger.debug("Complete packet received.");
                     clearBuffer();
                     Message message = new Message(bufCopy);
                     notifyListeners(message);
-                } else if (bufferPosition > expectedLength) {
-                    // somehow we've received more data that expected
-                    clearAndThrowException(
-                            "Invalid packet size. Discarding current buffer: " + MessageUtils.toPrettyHexString(bufCopy));
                 }
             } else {
                 // we've got 4 or more bytes and it doesn't have a valid header
