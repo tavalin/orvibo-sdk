@@ -2,8 +2,8 @@ package com.github.tavalin.orvibo.network;
 
 import java.net.DatagramPacket;
 import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -23,7 +23,7 @@ public class PacketHandler {
 
     private ByteBuffer byteBuffer = null;
     private static final byte[] HEADER = new byte[] { 0x68, 0x64 };
-    private final static int MAX_SIZE = 0xFF;
+    private final static int MAX_SIZE = 0xFFFF;
     /** The listeners. */
     private List<MessageListener> listeners;
     private InetAddress remote;
@@ -32,52 +32,6 @@ public class PacketHandler {
 
     /** The logger. */
     private final Logger logger = LoggerFactory.getLogger(PacketHandler.class);
-
-    public static void main(String[] args) {
-        // byte[][] input = new byte[][] { p1, p2 };
-        // byte[] buf = new byte[0];
-        InetAddress remote = null;
-        try {
-            remote = InetAddress.getByName("192.168.0.123");
-        } catch (UnknownHostException e2) {
-            // TODO Auto-generated catch block
-            e2.printStackTrace();
-        }
-        PacketHandler rt;
-
-        rt = new PacketHandler(remote);
-
-        byte[] p1 = new byte[] { 0x68, 0x64, 0x00, 0x10 };
-        byte[] p2 = new byte[] { 0x0F, 0x0F, 0x0F, 0x0F, 0x0F, 0x0F };
-        byte[] p3 = new byte[] { 0x0B, 0x0B, 0x0B, 0x0B, 0x0B, 0x0B };
-
-        /*
-         * byte[][] input = new byte[][] { { 0x68 }, { 0x64 }, { 0x00 }, { 0x10
-         * }, { 0x11 }, {(byte)0xFF} };
-         */
-        try {
-            /*
-             * for (byte[] b : input) { rt.handle(b); }
-             */
-            rt.processPacketBytes(p1);
-            rt.processPacketBytes(p2);
-            // assertArrayEquals(Bytes.concat(p1, p2), rt.getByteBuffer());
-            rt.processPacketBytes(p3);
-            // assertArrayEquals(new byte[0], rt.getByteBuffer());
-
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-            // e.printStackTrace();
-        }
-
-        try {
-            rt.processPacketBytes(p1);
-            rt.processPacketBytes(p2);
-        } catch (Exception e) {
-
-        }
-
-    }
 
     public PacketHandler(InetAddress remote) {
         setRemote(remote);
@@ -105,7 +59,12 @@ public class PacketHandler {
 
     private int getExpectedLength() {
         byte[] byteBuffer = getByteBuffer();
-        return byteBuffer[2] + byteBuffer[3];
+        ByteBuffer buffer = ByteBuffer.allocate(2);
+        buffer.order(ByteOrder.BIG_ENDIAN);
+        buffer.put(byteBuffer[2]);
+        buffer.put(byteBuffer[3]);
+        buffer.flip();
+        return buffer.getShort();
     }
 
     private void clearBuffer() {
