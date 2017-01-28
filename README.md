@@ -5,6 +5,15 @@ This project aims to provide a reusable Java library that implements for communi
 with Orvibo devices that use a UDP protcol, including S20 Smart Sockets and Allone Smart Remotes.
 A lot of the initial findings regarding the protocol were found https://stikonas.eu/wordpress/2015/02/24/reverse-engineering-orvibo-s20-socket/.
 
+## Version History
+* 1.1.2 Fix to length parsing for commands greater than 255 bytes
+* 1.1.1 AllOne Learn file fixes
+* 1.1.0 Refactored packet handling
+* 1.0.4 AllOne Learn fixes
+* 1.0.3 Fix validation of AllOne responses
+* 1.0.0 Add experimental support for AllOne devices
+* 0.1.0 S20 support
+
 ## Examples:
 
 ### Network Discovery (MAC/deviceId is unknown):
