@@ -13,22 +13,33 @@ import com.github.tavalin.orvibo.protocol.Message;
 
 public class AllOne extends OrviboDevice {
 
+    public static final int IDLE = 1;
+    public static final int EMITTING = 2;
+    public static final int LEARN_INIT = 3;
+    public static final int LEARNING = 4;
+
+
+
+
     /** The Constant logger. */
     private final Logger logger = LoggerFactory.getLogger(AllOne.class);
 
     private Path learnPath = null;
+    private int status=IDLE;
 
     public AllOne() {
         super(DeviceType.ALLONE);
     }
 
     public void emit(Path file) throws IOException {
+        this.setStatus(EMITTING);
         Message message = CommandFactory.createEmitCommand(this, file);
         OrviboClient orviboClient = getNetworkContext();
         orviboClient.sendMessage(message);
     }
 
     public void learn(Path file) {
+        this.setStatus(LEARN_INIT);
         Message message = CommandFactory.createLearnCommand(this);
         setLearnPath(file);
         OrviboClient orviboClient = getNetworkContext();
@@ -62,4 +73,11 @@ public class AllOne extends OrviboDevice {
         logger.debug("Learn path set to {}", learnPath.toAbsolutePath());
     }
 
+    public void setStatus(int status) {
+        this.status=status;
+    }
+
+    public int getStatus() {
+        return status;
+    }
 }

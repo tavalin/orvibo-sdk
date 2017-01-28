@@ -45,6 +45,11 @@ public class LearnHandler extends AbstractCommandHandler {
                 byte[] data = Arrays.copyOfRange(in, ALLONE_COMMAND_START, in.length);
                 AllOne allone = (AllOne) device;
                 allone.saveLearnedData(data);
+                //System.out.println("Memorizzato comando lungo "+in.length);
+                allone.setStatus(AllOne.IDLE);
+            }else {
+                AllOne allone = (AllOne) device;
+                allone.setStatus(AllOne.LEARNING);
             }
         } catch (IOException e) {
             logger.error(e.getMessage());
