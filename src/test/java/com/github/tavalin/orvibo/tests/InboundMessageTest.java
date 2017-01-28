@@ -1,6 +1,7 @@
 package com.github.tavalin.orvibo.tests;
 
 import java.io.IOException;
+import java.net.DatagramPacket;
 import java.net.SocketException;
 import java.nio.file.Files;
 import java.util.Arrays;
@@ -15,6 +16,7 @@ import com.github.tavalin.orvibo.commands.AbstractCommandHandler;
 import com.github.tavalin.orvibo.commands.CommandFactory;
 import com.github.tavalin.orvibo.devices.AllOne;
 import com.github.tavalin.orvibo.exceptions.OrviboException;
+import com.github.tavalin.orvibo.network.PacketHandler;
 import com.github.tavalin.orvibo.protocol.Message;
 import com.github.tavalin.orvibo.utils.MessageUtils;
 
@@ -121,6 +123,16 @@ public class InboundMessageTest {
         byte[] learnCode = Arrays.copyOfRange(buf, 26, buf.length);
         byte[] emitCode = Arrays.copyOfRange(emit.asBytes(), 26, emit.asBytes().length);
         assertArrayEquals(learnCode, emitCode);
+    }
+
+    @Test
+    public void longCommandLength() throws OrviboException {
+        // this test should really test that the length bytes equals the actual message length of a known length
+        byte[] buf = MessageUtils.hexStringToByteArray(
+                "686401526C73ACCF2353041E202020202020010000000002380100000000380100000000000000002801CD008C04D000F302D000F40AD1001505D1001405D1008B04D1007703D000A332CE000504CE00B006CD00F502CD00F502CC000704CB00A105CA00F802C900F702C700FFFF043F0100A8002B04A900B304A8001B03A8001B0BA8003D05A8003D05A800B304B3009603A800CB32A8003A049A001B0BA8005F07A9001903A8002B04A800C405A8001A03A8001803A800FFFF223F0100A8002B04A900B304A9001A03A8001B0BA9003D05A8003D05A900B304A9009F03A900CC32AD002704AD00170BAD005A07AD001503AD002604C500AB05AB001503AE001203AE00FFFF223F0100D0000404D0008B04D000F202D000F30AD0001505D0001505D0008B04D0007803D000A532D0000304D400EF0AD0003707D000F202D0000304D0009C05D000F202D000F002D0000000");
+        PacketHandler ph = new PacketHandler(null);
+        DatagramPacket dp = new DatagramPacket(buf, buf.length);
+        ph.packetReceived(dp);
     }
 
     @After
