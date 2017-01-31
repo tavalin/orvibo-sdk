@@ -187,13 +187,11 @@ public class TransportManager extends IoHandlerAdapter {
             address = getAddress(message.getDeviceId());
             IoSession session = getSession(address);
             logger.debug("Sending to {}", session.toString());
-            if (session.getService() instanceof IoAcceptor) {
-                // if (retry) {
+            if (retry) {
                 sendWithRetry(session, message);
             } else {
                 session.write(message);
             }
-
         } catch (ExecutionException | RetryException | SocketException e) {
             logger.error(e.getMessage());
         }

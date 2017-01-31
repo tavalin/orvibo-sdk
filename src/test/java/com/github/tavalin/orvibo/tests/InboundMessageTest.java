@@ -1,11 +1,8 @@
 package com.github.tavalin.orvibo.tests;
 
-import static org.junit.Assert.assertArrayEquals;
-
 import java.io.IOException;
 import java.net.SocketException;
 import java.nio.file.Files;
-import java.util.Arrays;
 
 import org.junit.After;
 import org.junit.Before;
@@ -120,7 +117,6 @@ public class InboundMessageTest {
 
         byte[] bytes = Files.readAllBytes(device.getLearnPath());
         EmitRequest request = new EmitRequest(device.getDeviceId(), bytes);
-        //Message emit = CommandFactory.createEmitCommand(device, device.getLearnPath());
 
         //byte[] learnCode = Arrays.copyOfRange(buf, 26, buf.length);
         //byte[] emitCode = Arrays.copyOfRange(emit.asBytes(), 26, emit.asBytes().length);
