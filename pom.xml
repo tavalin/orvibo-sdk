@@ -50,7 +50,7 @@
 		<collection4Version>4.1</collection4Version>
 		<guavaVersion>19.0</guavaVersion>
 		<junitVersion>4.12</junitVersion>
-		<mockitoVersion>2.0.52-beta</mockitoVersion>
+		<mockitoVersion>2.21.0</mockitoVersion>
 		<lang3Version>3.0</lang3Version>
 	</properties>
 	<dependencies>
